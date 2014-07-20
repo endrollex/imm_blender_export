@@ -1,6 +1,6 @@
 #
-# show_static_model.py
-# export static model data to text file
+# export_static.py
+# export static model data to text files
 #
 import os
 import bpy
