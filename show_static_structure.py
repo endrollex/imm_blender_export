@@ -6,7 +6,7 @@ import os
 import bpy
 os.system("cls")
 
-# Vertices
+# vertices
 mesh = bpy.data.meshes[0]
 print("VertexCount:\t\t", len(mesh.vertices))
 mesh.calc_tessface()
@@ -15,7 +15,7 @@ print("Index:\t\t\t", mesh.vertices[0].index)
 print("Position:\t\t", mesh.vertices[0].co)
 print("Normal:\t\t\t", mesh.vertices[0].normal)
 
-# Texture
+# texture
 try:
     print("Tex-Coords:\t\t", mesh.uv_layers[0].data[0].uv)
     mesh.calc_tangents()
@@ -26,7 +26,7 @@ try:
 except:
     print("No Texture Data")
 
-# Material
+# material
 try:
     print("Ambient:\t\t", mesh.materials[0].ambient)
     print("Diffuse:\t\t", mesh.materials[0].diffuse_color)
