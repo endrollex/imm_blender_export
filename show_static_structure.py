@@ -20,6 +20,7 @@ try:
 	print("Tex-Coords:\t\t", mesh.uv_layers[0].data[0].uv)
 	mesh.calc_tangents()
 	print("Tangent:\t\t", mesh.loops[0].tangent)
+	print("TangentW:\t\t", mesh.loops[0].bitangent_sign)
 	mesh.free_tangents()
 	print("DiffuseMap:\t\t", mesh.uv_textures[0].data[0].image.filepath)
 	print("NormalMap:\t\t")
