@@ -7,13 +7,8 @@ import bpy
 os.system("cls")
 mesh = bpy.data.meshes[0]
 
-# setting export dir and files
+# setting export dir
 export_dir = "D:\\Ashlotte\\blender\\"
-export_f_position = "export_pos.txt"
-export_f_normal = "export_nor.txt"
-export_f_triangle = "export_tri.txt"
-export_f_uv = "export_uv.txt"
-export_f_tangent = "export_tan.txt"
 
 # write text
 def write_text(path, info_list):
@@ -112,14 +107,25 @@ def get_tangent():
 	mesh.free_tangents()
 	return rt_list
 
-# main
-export = export_dir+export_f_position
-write_text(export, get_position())
-export = export_dir+export_f_normal
-write_text(export, get_normal())
-export = export_dir+export_f_triangle
+# main check len
+print("-----------------")
+print("Data Information:")
+print("-----------------")
+print("Position Count:\t", len(get_position()))
+print("Normal Count:\t", len(get_normal()))
+print("Triangle Count:\t", len(get_triangle()))
+print("Uv Count:\t", len(get_uv()))
+print("Tangent Count:\t", len(get_tangent()))
+
+# main m3d
+str_out = []
+temp1 = get_position()
+temp2 = get_tangent()
+temp3 = get_normal()
+temp4 = get_uv()
+for ix in range(0, len(get_position())):
+	str_out.append("Position: "+temp1[ix]+"\n"+"Tangent: "+temp2[ix]+"\n"+"Normal: "+temp3[ix]+"\n"+"Tex-Coords: "+temp4[ix]+"\n")
+export = export_dir+"export_vert.txt"
+write_text(export, str_out)
+export = export_dir+"export_tria.txt"
 write_text(export, get_triangle())
-export = export_dir+export_f_uv
-write_text(export, get_uv())
-export = export_dir+export_f_tangent
-write_text(export, get_tangent())

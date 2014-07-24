@@ -5,6 +5,9 @@
 import os
 import bpy
 os.system("cls")
+print("--------------------------------")
+print("Abstract Static Model Structure:")
+print("--------------------------------")
 
 # vertices
 mesh = bpy.data.meshes[0]
