@@ -8,7 +8,7 @@ os.system("cls")
 mesh = bpy.data.meshes[0]
 
 # setting export dir
-export_dir = "D:\\Ashlotte\\blender\\"
+export_dir = "D:\\Dropbox\\imm_blender_export\\"
 
 # write text
 def write_text(path, info_list):
@@ -64,7 +64,6 @@ def get_triangle():
 # export uv
 def get_uv():
 	try_ok = True
-	uv_layer = mesh.uv_layers[0].data
 	rt_list = []
 	for ix in range(0, len(mesh.vertices)):
 		rt_list.append("0")
@@ -76,7 +75,7 @@ def get_uv():
 		for poly in mesh.polygons:
 			for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
 				ix = int(mesh.loops[loop_index].vertex_index)
-				temp = str(uv_layer[loop_index].uv)
+				temp = str(mesh.uv_layers[0].data[loop_index].uv)
 				temp = str_format(temp)
 				rt_list[ix] = temp
 	else:
@@ -87,11 +86,10 @@ def get_uv():
 def get_tangent():
 	try_ok = True
 	rt_list = []
-	mesh.calc_tangents()
 	for ix in range(0, len(mesh.vertices)):
 		rt_list.append("0")
 	try:
-		temp = mesh.uv_layers[0].data[0].uv
+		mesh.calc_tangents()
 	except:
 		try_ok = False
 	if try_ok:
@@ -104,28 +102,39 @@ def get_tangent():
 				rt_list[ix] = temp
 	else:
 		rt_list = ["no tangent data"]
-	mesh.free_tangents()
+	if try_ok:
+		mesh.free_tangents()
 	return rt_list
 
 # main check len
+len1 = len(get_triangle())
+len2 = len(get_position())
+len3 = len(get_normal())
+len4 = len(get_uv())
+len5 = len(get_tangent())
 print("-----------------")
-print("Data Information:")
+print("Data information:")
 print("-----------------")
-print("Position Count:\t", len(get_position()))
-print("Normal Count:\t", len(get_normal()))
-print("Triangle Count:\t", len(get_triangle()))
-print("Uv Count:\t", len(get_uv()))
-print("Tangent Count:\t", len(get_tangent()))
+print("Triangle count:\t", len1)
+print("Position count:\t", len2)
+print("Normal count:\t", len3)
+print("Uv count:\t", len4)
+print("Tangent count:\t", len5)
+check_len = True
+if len2 != len3 or len2 != len4 or len2 != len5:
+	check_len = False
+	print("Export data error")
 
 # main m3d
-str_out = []
-temp1 = get_position()
-temp2 = get_tangent()
-temp3 = get_normal()
-temp4 = get_uv()
-for ix in range(0, len(get_position())):
-	str_out.append("Position: "+temp1[ix]+"\n"+"Tangent: "+temp2[ix]+"\n"+"Normal: "+temp3[ix]+"\n"+"Tex-Coords: "+temp4[ix]+"\n")
-export = export_dir+"export_vert.txt"
-write_text(export, str_out)
-export = export_dir+"export_tria.txt"
-write_text(export, get_triangle())
+if check_len:
+	str_out = []
+	temp1 = get_position()
+	temp2 = get_tangent()
+	temp3 = get_normal()
+	temp4 = get_uv()
+	for ix in range(0, len(get_position())):
+		str_out.append("Position: "+temp1[ix]+"\n"+"Tangent: "+temp2[ix]+"\n"+"Normal: "+temp3[ix]+"\n"+"Tex-Coords: "+temp4[ix]+"\n")
+	export = export_dir+"export_vert.txt"
+	write_text(export, str_out)
+	export = export_dir+"export_tria.txt"
+	write_text(export, get_triangle())
