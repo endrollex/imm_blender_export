@@ -39,17 +39,12 @@ def str_format(str_inout):
 # export triangle
 def get_triangle():
 	rt_list = []
-	is_ngon = False
 	for t in mesh.tessfaces:
 		if len(t.vertices) == 3:
 			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
 		else:
-			if len(t.vertices) > 4:
-				is_ngon = True
 			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
 			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[2])+" "+str(t.vertices[3]))
-	if is_ngon:
-		rt_list = ["ngon detected, can not export triangle"]
 	return rt_list
 
 # export position
@@ -122,26 +117,16 @@ def get_uv2():
 
 # export tangent
 def get_tangent():
-	try_ok = True
 	rt_list = []
 	for ix in range(0, len(mesh.vertices)):
 		rt_list.append("0")
-	try:
-		mesh.calc_tangents()
-	except:
-		try_ok = False
-	if try_ok:
-		for poly in mesh.polygons:
-			for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
-				ix = int(mesh.loops[loop_index].vertex_index)
-				temp = str(mesh.loops[loop_index].tangent)
-				temp = str_format(temp)
-				temp = temp+" "+str(int(mesh.loops[loop_index].bitangent_sign))
-				rt_list[ix] = temp
-	else:
-		rt_list = ["no tangent data"]
-	if try_ok:
-		mesh.free_tangents()
+	for poly in mesh.polygons:
+		for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
+			ix = int(mesh.loops[loop_index].vertex_index)
+			temp = str(mesh.loops[loop_index].tangent)
+			temp = str_format(temp)
+			temp = temp+" "+str(int(mesh.loops[loop_index].bitangent_sign))
+			rt_list[ix] = temp
 	return rt_list
 
 # main check len
