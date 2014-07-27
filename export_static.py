@@ -6,9 +6,19 @@ import os
 import bpy
 os.system("cls")
 mesh = bpy.data.meshes[0]
+mesh.calc_tessface()
 
 # setting export dir
 export_dir = "D:\\Dropbox\\imm_blender_export\\"
+
+# check stat
+def prepare_uv():
+	try:
+		temp = mesh.tessface_uv_textures[0].data
+		mesh.calc_tangents()
+	except:
+		return False
+	return True
 
 # write text
 def write_text(path, info_list):
@@ -26,6 +36,22 @@ def str_format(str_inout):
 	str_inout = str_inout.replace(",", "")
 	return str_inout
 	
+# export triangle
+def get_triangle():
+	rt_list = []
+	is_ngon = False
+	for t in mesh.tessfaces:
+		if len(t.vertices) == 3:
+			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
+		else:
+			if len(t.vertices) > 4:
+				is_ngon = True
+			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
+			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[2])+" "+str(t.vertices[3]))
+	if is_ngon:
+		rt_list = ["ngon detected, can not export triangle"]
+	return rt_list
+
 # export position
 def get_position():
 	rt_list = []
@@ -44,42 +70,54 @@ def get_normal():
 		rt_list.append(temp)
 	return rt_list
 
-# export triangle
-def get_triangle():
-	rt_list = []
-	mesh.calc_tessface()
-	is_ngon = False
-	for t in mesh.tessfaces:
-		if len(t.vertices) == 3:
-			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
-		else:
-			if len(t.vertices) > 4:
-				is_ngon = True
-			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
-			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[2])+" "+str(t.vertices[3]))
-	if is_ngon:
-		rt_list = ["ngon detected, can not export triangle"]
-	return rt_list
-
 # export uv
 def get_uv():
 	try_ok = True
 	rt_list = []
 	for ix in range(0, len(mesh.vertices)):
 		rt_list.append("0")
-	try:
-		temp = mesh.uv_layers[0].data[0].uv
-	except:
-		try_ok = False
-	if try_ok:
-		for poly in mesh.polygons:
-			for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
-				ix = int(mesh.loops[loop_index].vertex_index)
-				temp = str(mesh.uv_layers[0].data[loop_index].uv)
-				temp = str_format(temp)
-				rt_list[ix] = temp
-	else:
-		rt_list = ["no uv data"]
+	for poly in mesh.polygons:
+		for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
+			ix = int(mesh.loops[loop_index].vertex_index)
+			temp = str(mesh.uv_layers[0].data[loop_index].uv)
+			temp = str_format(temp)
+			rt_list[ix] = temp
+	return rt_list
+
+#
+def get_uv2():
+	#
+	ix_list = []
+	for t in mesh.tessfaces:
+		if len(t.vertices) == 3:
+			ix_list.append(int(t.vertices[0]))
+			ix_list.append(int(t.vertices[1]))
+			ix_list.append(int(t.vertices[2]))
+		else:
+			ix_list.append(int(t.vertices[0]))
+			ix_list.append(int(t.vertices[1]))
+			ix_list.append(int(t.vertices[2]))
+			ix_list.append(int(t.vertices[0]))
+			ix_list.append(int(t.vertices[2]))
+			ix_list.append(int(t.vertices[3]))
+	#
+	rt_list = []
+	for ix in range(0, len(mesh.vertices)):
+		rt_list.append("0")
+	uv_data = mesh.tessface_uv_textures[0].data
+	ix = 0
+	for data in uv_data:
+		if len(data.uv) == 4:
+			rt_list[ix_list[ix]] = str_format(str(data.uv1))
+			rt_list[ix_list[ix+1]] = str_format(str(data.uv2))
+			rt_list[ix_list[ix+2]] = str_format(str(data.uv3))
+			rt_list[ix_list[ix+5]] = str_format(str(data.uv4))
+			ix += 6
+		else:
+			rt_list[ix_list[ix]] = str_format(str(data.uv1))
+			rt_list[ix_list[ix+1]] = str_format(str(data.uv2))
+			rt_list[ix_list[ix+2]] = str_format(str(data.uv3))
+			ix +=3
 	return rt_list
 
 # export tangent
@@ -107,11 +145,18 @@ def get_tangent():
 	return rt_list
 
 # main check len
-len1 = len(get_triangle())
-len2 = len(get_position())
-len3 = len(get_normal())
-len4 = len(get_uv())
-len5 = len(get_tangent())
+ex_tri = get_triangle()
+ex_pos = get_position()
+ex_nor = get_normal()
+ex_uv = ex_tan = []
+if prepare_uv():
+	ex_uv = get_uv2()
+	ex_tan = get_tangent()
+len1 = len(ex_tri)
+len2 = len(ex_pos)
+len3 = len(ex_nor)
+len4 = len(ex_uv)
+len5 = len(ex_tan)
 print("-----------------")
 print("Data information:")
 print("-----------------")
@@ -128,12 +173,8 @@ if len2 != len3 or len2 != len4 or len2 != len5:
 # main m3d
 if check_len:
 	str_out = []
-	temp1 = get_position()
-	temp2 = get_tangent()
-	temp3 = get_normal()
-	temp4 = get_uv()
 	for ix in range(0, len(get_position())):
-		str_out.append("Position: "+temp1[ix]+"\n"+"Tangent: "+temp2[ix]+"\n"+"Normal: "+temp3[ix]+"\n"+"Tex-Coords: "+temp4[ix]+"\n")
+		str_out.append("Position: "+ex_pos[ix]+"\n"+"Tangent: "+ex_tan[ix]+"\n"+"Normal: "+ex_nor[ix]+"\n"+"Tex-Coords: "+ex_uv[ix]+"\n")
 	export = export_dir+"export_vert.txt"
 	write_text(export, str_out)
 	export = export_dir+"export_tria.txt"
