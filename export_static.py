@@ -67,7 +67,6 @@ def get_normal():
 
 # export uv
 def get_uv():
-	try_ok = True
 	rt_list = []
 	for ix in range(0, len(mesh.vertices)):
 		rt_list.append("0")
