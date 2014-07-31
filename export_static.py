@@ -4,6 +4,7 @@
 #
 import os
 import bpy
+import math
 os.system("cls")
 mesh = bpy.data.meshes[0]
 mesh.calc_tessface()
@@ -11,7 +12,15 @@ mesh.calc_tessface()
 # setting export dir
 export_dir = "D:\\Dropbox\\imm_blender_export\\"
 
-# check stat
+# round sig
+def round_sig(x, sig = 6):
+	if x < 1e-100 and x > -1e-100:
+		return 0.0
+	if x < 0:
+		return round_sig(-x, sig)*-1
+	return round(x, sig-int(math.floor(math.log10(x)))-1)
+
+# prepare uv function
 def prepare_uv():
 	try:
 		temp = mesh.tessface_uv_textures[0].data
@@ -29,137 +38,113 @@ def write_text(path, info_list):
 	fw.write(info_str)
 	fw.close()
 
-# str_format
-def str_format(str_inout):
-	str_inout = str_inout.replace("<Vector (", "")
-	str_inout = str_inout.replace(")>", "")
-	str_inout = str_inout.replace(",", "")
-	return str_inout
-	
-# export triangle
-def get_triangle():
-	rt_list = []
+# float format
+def float_format(list_in):
+	str_out = str(round_sig(list_in[0]))
+	for ix in range(1, len(list_in)):
+		str_out = str_out+" "+str(round_sig(list_in[ix]))
+	return str_out
+
+# uv per face
+def get_face_and_uv():
+	# store vertex of tessface
+	face_list = []
 	for t in mesh.tessfaces:
-		if len(t.vertices) == 3:
-			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
-		else:
-			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[1])+" "+str(t.vertices[2]))
-			rt_list.append(str(t.vertices[0])+" "+str(t.vertices[2])+" "+str(t.vertices[3]))
-	return rt_list
+			face_list.append(t.vertices)
+	# store uv according to vertex of tessface
+	uv_data = mesh.tessface_uv_textures[0].data
+	uv_list = []
+	uv_ex_dict = {}
+	uv_ex_dict_inv = {}
+	vertex_count = len(mesh.vertices)
+	for ix in range(0, vertex_count):
+		uv_list.append([])
+	uv_temp = ["", "", "", ""]
+	for ix in range(0, len(uv_data)):
+		v = len(uv_data[ix].uv)
+		uv_temp[0] = float_format(uv_data[ix].uv1)
+		uv_temp[1] = float_format(uv_data[ix].uv2)
+		uv_temp[2] = float_format(uv_data[ix].uv3)
+		if v == 4:
+			uv_temp[3] = float_format(uv_data[ix].uv4)
+		for iv in range(0, v):
+			if uv_temp[iv] not in uv_list[face_list[ix][iv]]:
+				uv_list[face_list[ix][iv]].append(uv_temp[iv])
+				if len(uv_list[face_list[ix][iv]]) > 1:
+					uv_list.append([uv_temp[iv]])
+					# dict for original vertex index map new vertex index
+					uv_ex_dict_inv.fromkeys([face_list[ix][iv]])
+					uv_ex_dict_inv[face_list[ix][iv]] = len(uv_list)-1					
+					# indicate one vertex have two uv
+					uv_ex_dict.fromkeys([len(uv_list)-1])
+					uv_ex_dict[len(uv_list)-1] = face_list[ix][iv]
+					face_list[ix][iv] = len(uv_list)-1
+				if len(uv_list[face_list[ix][iv]]) > 2:
+					return ["one vertex have more than two uv, exceed the current solution"]
+			else:
+				if uv_temp[iv] != uv_list[face_list[ix][iv]][0]:
+					face_list[ix][iv] = uv_ex_dict_inv[face_list[ix][iv]]
+	return [face_list, uv_list, uv_ex_dict]
+
+# export triangle list
+def get_triangle(face_list):
+	rt_list = []
+	for t in face_list:
+		rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
+		if len(t) == 4:
+			rt_list.append(str(t[0])+" "+str(t[2])+" "+str(t[3]))
+	return rt_list	
 
 # export position
-def get_position():
-	rt_list = []
+def get_position(face_list, uv_len, uv_ex_dict):
+	rt_list = []	
 	for v in mesh.vertices:
-		temp = str(v.co)
-		temp = str_format(temp)
+		temp = float_format(v.co)
 		rt_list.append(temp)
+	for ix in range(uv_len-len(uv_ex_dict), uv_len):
+		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
-	
+
 # export normal
-def get_normal():
-	rt_list = []
+def get_normal(face_list, uv_len, uv_ex_dict):
+	rt_list = []	
 	for v in mesh.vertices:
-		temp = str(v.normal)
-		temp = str_format(temp)
+		temp = float_format(v.normal)
 		rt_list.append(temp)
+	for ix in range(uv_len-len(uv_ex_dict), uv_len):
+		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
 
-# export uv
-def get_uv():
-	rt_list = []
-	for ix in range(0, len(mesh.vertices)):
-		rt_list.append("0")
-	for poly in mesh.polygons:
-		for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
-			ix = int(mesh.loops[loop_index].vertex_index)
-			temp = str(mesh.uv_layers[0].data[loop_index].uv)
-			temp = str_format(temp)
-			rt_list[ix] = temp
-	return rt_list
-
-#
-def get_uv2():
-	#
-	ix_list = []
-	for t in mesh.tessfaces:
-		if len(t.vertices) == 3:
-			ix_list.append(int(t.vertices[0]))
-			ix_list.append(int(t.vertices[1]))
-			ix_list.append(int(t.vertices[2]))
-		else:
-			ix_list.append(int(t.vertices[0]))
-			ix_list.append(int(t.vertices[1]))
-			ix_list.append(int(t.vertices[2]))
-			ix_list.append(int(t.vertices[0]))
-			ix_list.append(int(t.vertices[2]))
-			ix_list.append(int(t.vertices[3]))
-	#
-	rt_list = []
-	for ix in range(0, len(mesh.vertices)):
-		rt_list.append("0")
-	uv_data = mesh.tessface_uv_textures[0].data
-	ix = 0
-	for data in uv_data:
-		if len(data.uv) == 4:
-			rt_list[ix_list[ix]] = str_format(str(data.uv1))
-			rt_list[ix_list[ix+1]] = str_format(str(data.uv2))
-			rt_list[ix_list[ix+2]] = str_format(str(data.uv3))
-			rt_list[ix_list[ix+5]] = str_format(str(data.uv4))
-			ix += 6
-		else:
-			rt_list[ix_list[ix]] = str_format(str(data.uv1))
-			rt_list[ix_list[ix+1]] = str_format(str(data.uv2))
-			rt_list[ix_list[ix+2]] = str_format(str(data.uv3))
-			ix +=3
-	return rt_list
-
-# export tangent
-def get_tangent():
-	rt_list = []
-	for ix in range(0, len(mesh.vertices)):
-		rt_list.append("0")
-	for poly in mesh.polygons:
-		for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
-			ix = int(mesh.loops[loop_index].vertex_index)
-			temp = str(mesh.loops[loop_index].tangent)
-			temp = str_format(temp)
-			temp = temp+" "+str(int(mesh.loops[loop_index].bitangent_sign))
-			rt_list[ix] = temp
-	return rt_list
-
-# main check len
-ex_tri = get_triangle()
-ex_pos = get_position()
-ex_nor = get_normal()
-ex_uv = ex_tan = []
-if prepare_uv():
-	ex_uv = get_uv2()
-	ex_tan = get_tangent()
-len1 = len(ex_tri)
-len2 = len(ex_pos)
-len3 = len(ex_nor)
-len4 = len(ex_uv)
-len5 = len(ex_tan)
-print("-----------------")
-print("Data information:")
-print("-----------------")
-print("Triangle count:\t", len1)
-print("Position count:\t", len2)
-print("Normal count:\t", len3)
-print("Uv count:\t", len4)
-print("Tangent count:\t", len5)
-check_len = True
-if len2 != len3 or len2 != len4 or len2 != len5:
-	check_len = False
-	print("Export data error")
-
-# main m3d
-if check_len:
+# main
+def main():
+	face_and_uv = get_face_and_uv()
+	uv_len = len(face_and_uv[1])
+	g_triangle = get_triangle(face_and_uv[0])
+	g_position = get_position(face_and_uv[0], uv_len, face_and_uv[2])
+	g_normal = get_normal(face_and_uv[0], uv_len, face_and_uv[2])
+	g_tangent = []
+	for ix in range(0, uv_len):
+		g_tangent.append("0.0 0.0 0.0 1")
 	str_out = []
-	for ix in range(0, len(get_position())):
-		str_out.append("Position: "+ex_pos[ix]+"\n"+"Tangent: "+ex_tan[ix]+"\n"+"Normal: "+ex_nor[ix]+"\n"+"Tex-Coords: "+ex_uv[ix]+"\n")
-	export = export_dir+"export_vert.txt"
+	for ix in range(0, uv_len):
+		temp = "Position: "+g_position[ix]+"\n"
+		temp += "Tangent: "+g_tangent[ix]+"\n"
+		temp += "Normal: "+g_normal[ix]+"\n"
+		temp += "Tex-Coords: "+face_and_uv[1][ix][0]+"\n"
+		str_out.append(temp)
+	export = export_dir+"export_v.txt"
 	write_text(export, str_out)
-	export = export_dir+"export_tria.txt"
-	write_text(export, get_triangle())
+	export = export_dir+"export_t.txt"
+	write_text(export, g_triangle)
+	print("-------------------")
+	print("Export information:")
+	print("-------------------")
+	print("Vertices:\t"+str(uv_len))
+	print("Triangles:\t"+str(len(g_triangle)))
+	print("Export dir:\t"+export_dir)
+
+# main prepare
+if prepare_uv():
+	main()
+else:
+	print("error, uv is not prepared")
