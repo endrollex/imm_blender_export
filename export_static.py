@@ -93,11 +93,11 @@ def get_triangle(face_list):
 		rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
 		if len(t) == 4:
 			rt_list.append(str(t[0])+" "+str(t[2])+" "+str(t[3]))
-	return rt_list	
+	return rt_list
 
 # export position
 def get_position(face_list, uv_len, uv_ex_dict):
-	rt_list = []	
+	rt_list = []
 	for v in mesh.vertices:
 		temp = float_format(v.co)
 		rt_list.append(temp)
@@ -115,8 +115,8 @@ def get_normal(face_list, uv_len, uv_ex_dict):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
 
-# main
-def main():
+# export m3d
+def export_m3d():
 	face_and_uv = get_face_and_uv()
 	uv_len = len(face_and_uv[1])
 	g_triangle = get_triangle(face_and_uv[0])
@@ -143,8 +143,8 @@ def main():
 	print("Triangles:\t"+str(len(g_triangle)))
 	print("Export dir:\t"+export_dir)
 
-# main prepare
+# main
 if prepare_uv():
-	main()
+	export_m3d()
 else:
-	print("error, uv is not prepared")
+	print("Export error, uv is not prepared")
