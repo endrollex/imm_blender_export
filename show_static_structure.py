@@ -20,7 +20,7 @@ print("Normal[0]:\t\t", mesh.vertices[0].normal)
 # texture
 try:
 	print("Tex-Coords structure:\t", "Pre-face")
-	print("Tex-Coords[0]:\t\t", mesh.uv_layers[0].data[0].uv)
+	print("Tex-Coords[0]:\t\t", mesh.tessface_uv_textures[0].data[0].uv1)
 	mesh.calc_tangents()
 	print("Tangent[0]:\t\t", mesh.loops[0].tangent)
 	print("Bitangent sign:\t\t", mesh.loops[0].bitangent_sign)
