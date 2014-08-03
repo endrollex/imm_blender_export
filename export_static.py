@@ -11,6 +11,7 @@ mesh.calc_tessface()
 
 # setting export dir
 export_dir = "D:\\Dropbox\\imm_blender_export\\"
+is_left_hand = True
 
 # round sig
 def round_sig(x, sig = 6):
@@ -38,8 +39,18 @@ def write_text(path, info_list):
 	fw.write(info_str)
 	fw.close()
 
-# float format
-def float_format(list_in):
+# coordinate format
+def coordinate_format(list_in):
+	str_out = ""
+	# mirrored along the YZ plane in left hand
+	if len(list_in) == 3 and is_left_hand:
+		str_out = str(round_sig(-list_in[0]))+" "+str(round_sig(list_in[1]))+" "+str(round_sig(list_in[2]))
+		return str_out
+	# fix uv
+	if len(list_in) == 2 and is_left_hand:
+		str_out = str(round_sig(list_in[0]))+" "+str(round_sig(1-list_in[1]))
+		return str_out
+	# no change coordinate
 	str_out = str(round_sig(list_in[0]))
 	for ix in range(1, len(list_in)):
 		str_out = str_out+" "+str(round_sig(list_in[ix]))
@@ -62,11 +73,11 @@ def get_face_and_uv():
 	uv_temp = ["", "", "", ""]
 	for ix in range(0, len(uv_data)):
 		v = len(uv_data[ix].uv)
-		uv_temp[0] = float_format(uv_data[ix].uv1)
-		uv_temp[1] = float_format(uv_data[ix].uv2)
-		uv_temp[2] = float_format(uv_data[ix].uv3)
+		uv_temp[0] = coordinate_format(uv_data[ix].uv1)
+		uv_temp[1] = coordinate_format(uv_data[ix].uv2)
+		uv_temp[2] = coordinate_format(uv_data[ix].uv3)
 		if v == 4:
-			uv_temp[3] = float_format(uv_data[ix].uv4)
+			uv_temp[3] = coordinate_format(uv_data[ix].uv4)
 		for iv in range(0, v):
 			if uv_temp[iv] not in uv_list[face_list[ix][iv]]:
 				uv_list[face_list[ix][iv]].append(uv_temp[iv])
@@ -90,16 +101,22 @@ def get_face_and_uv():
 def get_triangle(face_list):
 	rt_list = []
 	for t in face_list:
-		rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
+		if is_left_hand:
+			rt_list.append(str(t[0])+" "+str(t[2])+" "+str(t[1]))
+		else:
+			rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
 		if len(t) == 4:
-			rt_list.append(str(t[0])+" "+str(t[2])+" "+str(t[3]))
+			if is_left_hand:
+				rt_list.append(str(t[0])+" "+str(t[3])+" "+str(t[2]))
+			else:
+				rt_list.append(str(t[0])+" "+str(t[2])+" "+str(t[3]))
 	return rt_list
 
 # export position
 def get_position(face_list, uv_len, uv_ex_dict):
 	rt_list = []
 	for v in mesh.vertices:
-		temp = float_format(v.co)
+		temp = coordinate_format(v.co)
 		rt_list.append(temp)
 	for ix in range(uv_len-len(uv_ex_dict), uv_len):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
@@ -109,7 +126,7 @@ def get_position(face_list, uv_len, uv_ex_dict):
 def get_normal(face_list, uv_len, uv_ex_dict):
 	rt_list = []	
 	for v in mesh.vertices:
-		temp = float_format(v.normal)
+		temp = coordinate_format(v.normal)
 		rt_list.append(temp)
 	for ix in range(uv_len-len(uv_ex_dict), uv_len):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
