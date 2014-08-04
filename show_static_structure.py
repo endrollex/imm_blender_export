@@ -11,9 +11,9 @@ print("-----------------------")
 
 # vertices
 mesh = bpy.data.meshes[0]
-print("Vertex count:\t\t", len(mesh.vertices))
+print("Vertices:\t\t", len(mesh.vertices))
 mesh.calc_tessface()
-print("Triangle count:\t\t")
+print("Triangles:\t\t", "Need calculate")
 print("Position[0]:\t\t", mesh.vertices[0].co)
 print("Normal[0]:\t\t", mesh.vertices[0].normal)
 
@@ -26,9 +26,9 @@ try:
 	print("Bitangent sign:\t\t", mesh.loops[0].bitangent_sign)
 	mesh.free_tangents()
 	print("Diffuse map:\t\t", mesh.uv_textures[0].data[0].image.filepath)
-	print("Normal map:\t\t")
+	print("Normal map:\t\t", "-")
 except:
-	print("No texture data")
+	print("Texture data is not prepared")
 
 # material
 try:
@@ -41,4 +41,4 @@ try:
 	print("Reflect:\t\t", mesh.materials[0].mirror_color) # ReflectionColor
 	print("Reflect intensity:\t", mesh.materials[0].raytrace_mirror.reflect_factor)
 except:
-	print("No material data")
+	print("Material data is not prepared")
