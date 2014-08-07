@@ -1,13 +1,13 @@
 #
 # export_static.py
 # export static model data to text
+# always calc_tessface(), otherwise tessface will been lost updated, it seems strange
 #
 import os
 import bpy
 import math
 os.system("cls")
 mesh = bpy.data.meshes[0]
-mesh.calc_tessface()
 
 # setting export dir
 export_dir = "D:\\Dropbox\\imm_blender_export\\"
@@ -23,6 +23,7 @@ def round_sig(x, sig = 6):
 
 # prepare uv function
 def prepare_uv():
+	mesh.calc_tessface()
 	try:
 		temp = mesh.tessface_uv_textures[0].data
 		mesh.calc_tangents()
@@ -59,7 +60,8 @@ def coordinate_format(list_in):
 # uv per face
 def get_face_and_uv():
 	# store vertex of tessface
-	face_list = []
+	face_list = []	
+	mesh.calc_tessface()	
 	for t in mesh.tessfaces:
 			face_list.append(t.vertices)
 	# store uv according to vertex of tessface
@@ -97,6 +99,15 @@ def get_face_and_uv():
 					face_list[ix][iv] = uv_ex_dict_inv[face_list[ix][iv]]
 	return [face_list, uv_list, uv_ex_dict]
 
+# get tangent
+# polygons tangent is not corresponding with tessface
+# it need compute
+def get_tangent(uv_len):
+	rt_list = []
+	for ix in range(0, uv_len):
+		rt_list.append("0.0 0.0 0.0 1")
+	return rt_list
+
 # export triangle list
 def get_triangle(face_list):
 	rt_list = []
@@ -132,16 +143,14 @@ def get_normal(face_list, uv_len, uv_ex_dict):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
 
-# export m3d
+# export m3d format part
 def export_m3d():
 	face_and_uv = get_face_and_uv()
 	uv_len = len(face_and_uv[1])
 	g_triangle = get_triangle(face_and_uv[0])
 	g_position = get_position(face_and_uv[0], uv_len, face_and_uv[2])
 	g_normal = get_normal(face_and_uv[0], uv_len, face_and_uv[2])
-	g_tangent = []
-	for ix in range(0, uv_len):
-		g_tangent.append("0.0 0.0 0.0 1")
+	g_tangent = get_tangent(uv_len)
 	str_out = []
 	for ix in range(0, uv_len):
 		temp = "Position: "+g_position[ix]+"\n"

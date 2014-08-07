@@ -13,18 +13,15 @@ print("-----------------------")
 mesh = bpy.data.meshes[0]
 print("Vertices:\t\t", len(mesh.vertices))
 mesh.calc_tessface()
-print("Triangles:\t\t", "Need calculate")
+print("Triangles:\t\t", "Need compute")
 print("Position[0]:\t\t", mesh.vertices[0].co)
 print("Normal[0]:\t\t", mesh.vertices[0].normal)
 
 # texture
 try:
-	print("Tex-Coords structure:\t", "Pre-face")
-	print("Tex-Coords[0]:\t\t", mesh.tessface_uv_textures[0].data[0].uv1)
-	mesh.calc_tangents()
-	print("Tangent[0]:\t\t", mesh.loops[0].tangent)
-	print("Bitangent sign:\t\t", mesh.loops[0].bitangent_sign)
-	mesh.free_tangents()
+	print("UV[0] (Tessface):\t", mesh.tessface_uv_textures[0].data[0].uv1)
+	print("Tangent[0]:\t\t", "Need compute")
+	print("Bitangent sign:\t\t", "Need compute")
 	print("Diffuse map:\t\t", mesh.uv_textures[0].data[0].image.filepath)
 	print("Normal map:\t\t", "-")
 except:
