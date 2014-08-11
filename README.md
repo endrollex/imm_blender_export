@@ -11,7 +11,7 @@ Introduction:
 
 Files Explanation:
 ------------------
-* show_static_structure.py: Have a look of static model.
+* show_static.py: Have a look of static model.
 * export_static.py: Export static model data to text, setting is in this file.
 
 In Development:
