@@ -1,5 +1,5 @@
 #
-# show_static_structure.py
+# show_static.py
 # static model structure
 #
 import os
@@ -21,7 +21,6 @@ print("Normal[0]:\t\t", mesh.vertices[0].normal)
 try:
 	print("UV[0] (Tessface):\t", mesh.tessface_uv_textures[0].data[0].uv1)
 	print("Tangent[0]:\t\t", "Need compute")
-	print("Bitangent sign:\t\t", "Need compute")
 	print("Diffuse map:\t\t", mesh.uv_textures[0].data[0].image.filepath)
 	print("Normal map:\t\t", "-")
 except:
