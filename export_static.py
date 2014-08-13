@@ -122,9 +122,27 @@ def raw_uv_and_face():
 	# uv_ex_dict: uv index (exceed vertex count) is mapping vertex index
 	return [uv_list, uv_ex_dict, tessface_list]
 
+# tangent test bug
+def raw_tangent2(uv_len, uv_ex_dict):
+	rt_list = []
+	for ix in range(0, uv_len):
+		rt_list.append(mathutils.Vector((0.0, 0.0, 0.0, 1.0)))
+	mesh.calc_tangents()
+	for poly in mesh.polygons:
+		for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
+			vi = mesh.loops[loop_index].vertex_index
+			t = to_left_hand_vec3(mesh.loops[loop_index].tangent)
+			b = mesh.loops[loop_index].bitangent_sign
+			
+			rt_list[vi].xyz = t.xyz
+			rt_list[vi].w = b
+	for u in uv_ex_dict:
+		rt_list[u] = rt_list[uv_ex_dict[u]]
+	return rt_list
+
 # tangent list
 # polygons tangent is not corresponding with tessface
-# it is needed to compute
+# it is needed to compute per-vertex tangent spaces for an arbitrary triangle mesh
 # Algorithm from Mathematics for 3D Game Programming and Computer Graphics, 3rd ed. Listing 7.1
 def raw_tangent(uv_len, position_list, normal_list, uv_list, triangle_list):
 	tan1 = []
@@ -224,10 +242,12 @@ def export_m3d():
 	g_normal = vector_format(r_normal)
 	r_tangent = raw_tangent(uv_len, r_position, r_normal, r_uv_and_face[0], r_triangle)
 	g_tangent = vector_format(r_tangent)
+	#r_tangent = raw_tangent2(uv_len, r_uv_and_face[1])
+	#g_tangent = vector_format(r_tangent)
 	str_out = []
 	for ix in range(0, uv_len):
 		temp = "Position: "+g_position[ix]+"\n"
-		temp += "Tangent: "+g_tangent[ix]+"\n"
+		temp += "Tangent: "+g_tangent[ix][0:-2]+"\n"
 		temp += "Normal: "+g_normal[ix]+"\n"
 		temp += "TexCoord: "+g_uv[ix]+"\n"
 		str_out.append(temp)
