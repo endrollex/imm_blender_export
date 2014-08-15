@@ -1,6 +1,6 @@
 #
-# export_static.py
-# export static model data to text
+# static_export.py
+# export static data to text
 # always calc_tessface(), otherwise tessface will been lost updated, it seems strange
 #
 import os

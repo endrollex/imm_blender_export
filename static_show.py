@@ -1,15 +1,15 @@
 #
-# show_static.py
-# static model structure
+# static_show.py
+# Mesh, material and texture data structure
 #
 import os
 import bpy
 os.system("cls")
-print("-----------------------")
-print("Static model structure:")
-print("-----------------------")
+print("------------------------------------------")
+print("Mesh, material and texture data structure:")
+print("------------------------------------------")
 
-# vertices
+# mesh
 mesh = bpy.data.meshes[0]
 print("Vertices:\t\t", len(mesh.vertices))
 mesh.calc_tessface()
