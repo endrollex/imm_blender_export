@@ -122,8 +122,9 @@ def raw_uv_and_face():
 	# uv_ex_dict: uv index (exceed vertex count) is mapping vertex index
 	return [uv_list, uv_ex_dict, tessface_list]
 
-# tangent test bug
-def raw_tangent2(uv_len, uv_ex_dict):
+# polygons tangent
+# it can not use just for test
+def raw_tangent_p(uv_len, uv_ex_dict):
 	rt_list = []
 	for ix in range(0, uv_len):
 		rt_list.append(mathutils.Vector((0.0, 0.0, 0.0, 1.0)))
@@ -133,7 +134,6 @@ def raw_tangent2(uv_len, uv_ex_dict):
 			vi = mesh.loops[loop_index].vertex_index
 			t = to_left_hand_vec3(mesh.loops[loop_index].tangent)
 			b = mesh.loops[loop_index].bitangent_sign
-			
 			rt_list[vi].xyz = t.xyz
 			rt_list[vi].w = b
 	for u in uv_ex_dict:
@@ -242,8 +242,6 @@ def export_m3d():
 	g_normal = vector_format(r_normal)
 	r_tangent = raw_tangent(uv_len, r_position, r_normal, r_uv_and_face[0], r_triangle)
 	g_tangent = vector_format(r_tangent)
-	#r_tangent = raw_tangent2(uv_len, r_uv_and_face[1])
-	#g_tangent = vector_format(r_tangent)
 	str_out = []
 	for ix in range(0, uv_len):
 		temp = "Position: "+g_position[ix]+"\n"
