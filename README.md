@@ -11,8 +11,9 @@ Introduction:
 
 Files Explanation:
 ------------------
-* static_show.py: Have a look of static data structure.
-* static_export.py: Export static data to text, setting is in this file.
+* **animation_glance.py**: Have a look of animation data structure.
+* **static_glance.py**: Have a look of static data structure.
+* **static_export.py**: Export static data to text, setting is in this file.
 
 In Development:
 ---------------

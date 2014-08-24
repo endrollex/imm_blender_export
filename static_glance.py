@@ -1,5 +1,5 @@
 #
-# static_show.py
+# static_glance.py
 # Mesh, material and texture data structure
 #
 import os
