@@ -1,10 +1,9 @@
 #
 # static_export.py
 # export static data to text
-# CAUTION: This script may cause some problem after run it, then do not save .blend.
-# I can not found where is the problem.
 #
 import os
+import copy
 import bpy
 import math
 import mathutils
@@ -25,9 +24,12 @@ def round_sig(x, sig = 6):
 
 # prepare uv function
 def prepare_uv():
-	try:
+	# check tessfaces, to avoid repeated calc_tessface
+	if len(mesh.tessfaces) == 0:
 		mesh.calc_tessface()
-		temp = mesh.tessface_uv_textures[0].data
+	# check uv is exists or not
+	try:
+		mesh.tessface_uv_textures[0].data
 	except:
 		return False
 	return True
@@ -78,9 +80,15 @@ def triangle_format(list_in):
 def raw_uv_and_face():
 	# store vertex of tessface
 	tessface_list = []
-	mesh.calc_tessface()
+	# check tessfaces, to avoid repeated calc_tessface
+	if len(mesh.tessfaces) == 0:
+		mesh.calc_tessface()
+	# deepcopy manually
 	for t in mesh.tessfaces:
-		tessface_list.append(t.vertices)
+		if len(t.vertices) == 4:
+			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2], t.vertices[3]])
+		else:
+			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2]])
 	# store uv according to vertex of tessface
 	uv_data = mesh.tessface_uv_textures[0].data
 	uv_list = []
@@ -92,11 +100,11 @@ def raw_uv_and_face():
 	uv_temp = ["", "", "", ""]
 	for ix in range(0, len(uv_data)):
 		v = len(uv_data[ix].uv)
-		uv_temp[0] = uv_flip_x(uv_data[ix].uv1)
-		uv_temp[1] = uv_flip_x(uv_data[ix].uv2)
-		uv_temp[2] = uv_flip_x(uv_data[ix].uv3)
+		uv_temp[0] = copy.deepcopy(uv_flip_x(uv_data[ix].uv1))
+		uv_temp[1] = copy.deepcopy(uv_flip_x(uv_data[ix].uv2))
+		uv_temp[2] = copy.deepcopy(uv_flip_x(uv_data[ix].uv3))
 		if v == 4:
-			uv_temp[3] = uv_flip_x(uv_data[ix].uv4)
+			uv_temp[3] = copy.deepcopy(uv_flip_x(uv_data[ix].uv4))
 		for iv in range(0, v):
 			if uv_temp[iv] not in uv_list[tessface_list[ix][iv]]:
 				uv_list[tessface_list[ix][iv]].append(uv_temp[iv])
