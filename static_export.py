@@ -1,7 +1,8 @@
 #
 # static_export.py
 # export static data to text
-# always calc_tessface(), otherwise tessface will been lost updated, it seems strange
+# CAUTION: This script may cause some problem after run it, then do not save .blend.
+# I can not found where is the problem.
 #
 import os
 import bpy
@@ -24,10 +25,9 @@ def round_sig(x, sig = 6):
 
 # prepare uv function
 def prepare_uv():
-	mesh.calc_tessface()
 	try:
+		mesh.calc_tessface()
 		temp = mesh.tessface_uv_textures[0].data
-		mesh.calc_tangents()
 	except:
 		return False
 	return True
@@ -80,7 +80,7 @@ def raw_uv_and_face():
 	tessface_list = []
 	mesh.calc_tessface()
 	for t in mesh.tessfaces:
-			tessface_list.append(t.vertices)
+		tessface_list.append(t.vertices)
 	# store uv according to vertex of tessface
 	uv_data = mesh.tessface_uv_textures[0].data
 	uv_list = []
@@ -123,7 +123,7 @@ def raw_uv_and_face():
 	return [uv_list, uv_ex_dict, tessface_list]
 
 # polygons tangent
-# it can not use just for test
+# it can not use, just for test
 def raw_tangent_p(uv_len, uv_ex_dict):
 	rt_list = []
 	for ix in range(0, uv_len):
