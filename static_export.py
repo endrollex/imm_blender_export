@@ -264,12 +264,12 @@ def export_m3d():
 	print("-------------------")
 	print("Export information:")
 	print("-------------------")
-	print("Vertices:\t"+str(uv_len))
-	print("Triangles:\t"+str(len(g_triangle)))
-	print("Export dir:\t"+export_dir)
+	print("vertices:\t"+str(uv_len))
+	print("triangles:\t"+str(len(g_triangle)))
+	print("export dir:\t"+export_dir)
 
 # main
 if prepare_uv():
 	export_m3d()
 else:
-	print("Export error, uv is not prepared")
+	print("export error, uv is not prepared")
