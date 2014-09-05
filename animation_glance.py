@@ -5,12 +5,16 @@
 import os
 import bpy
 os.system("cls")
+
+arma = bpy.data.armatures[0]
+obj = bpy.data.objects[2]
+mesh = bpy.data.meshes[0]
+
 print("-------------------------")
 print("Animation data structure:")
 print("-------------------------")
 
 # armatures
-arma = bpy.data.armatures[0]
 index = 0
 print("bones:\t\t", arma.bones)
 print("index:\t\t", index)
@@ -25,3 +29,10 @@ print("matrix:")
 print(arma.bones[index].matrix)
 print("matrix_local:")
 print(arma.bones[index].matrix_local)
+#
+count = 0
+for v in mesh.vertices:
+	if len(v.groups) > 4:
+		count += 1
+print("vertex over:\t", count)
+print("vertex_groups:\t",obj.vertex_groups)

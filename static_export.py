@@ -8,6 +8,7 @@ import bpy
 import math
 import mathutils
 os.system("cls")
+
 mesh = bpy.data.meshes[0]
 
 # setting export dir

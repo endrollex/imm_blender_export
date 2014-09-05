@@ -5,12 +5,13 @@
 import os
 import bpy
 os.system("cls")
+
+mesh = bpy.data.meshes[0]
+
 print("------------------------------------------")
 print("Mesh, material and texture data structure:")
 print("------------------------------------------")
 
-# mesh
-mesh = bpy.data.meshes[0]
 # check tessfaces, to avoid repeated calc_tessface
 if len(mesh.tessfaces) == 0:
 	mesh.calc_tessface()
