@@ -18,4 +18,5 @@ def get_index(item, bpy_data):
 # BoneHierarchy
 for index, item in enumerate(arma.bones):
 	print(index, get_index(item.parent, arma.bones))
-	
+
+# BoneOffsets
