@@ -17,7 +17,7 @@ print("Animation data structure:")
 print("-------------------------")
 
 # armatures
-ix = 3
+ix = 0
 print("bones:\t\t", arma.bones)
 print("index:\t\t", ix)
 print("bones[ix]:\t", arma.bones[ix])
@@ -29,19 +29,19 @@ print(arma.bones[ix].matrix)
 print("matrix_local:")
 print(arma.bones[ix].matrix_local)
 
-#
+# maximum number of bones per vertex
 count = 0
 for v in mesh.vertices:
 	if len(v.groups) > 4:
 		count += 1
 print("total of vertexes which has more than 4 bones:\t", count)
 
-#
+# action
 obj = bpy.data.actions[0]
 print("frame_rage:\t", obj.frame_range)
 print("groups:\t\t", obj.groups)
 
-#
+# scene and pose
 obj = bpy.data.scenes[0]
 obj.frame_set(10)
 print("frame_current:\t", obj.frame_current)
