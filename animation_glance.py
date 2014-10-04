@@ -12,11 +12,10 @@ arma = bpy.data.objects[0].data
 mesh = bpy.data.objects[2].data
 c_obj = bpy.context.object
 
-print("-------------------------")
-print("Animation data structure:")
-print("-------------------------")
-
-# armatures
+# armature
+print("---------")
+print("armature:")
+print("---------")
 ix = 0
 print("bones:\t\t", arma.bones)
 print("index:\t\t", ix)
@@ -30,6 +29,10 @@ print("matrix_local:")
 print(arma.bones[ix].matrix_local)
 
 # maximum number of bones per vertex
+print("")
+print("-----------------------------------")
+print("maximum number of bones per vertex:")
+print("-----------------------------------")
 count = 0
 for v in mesh.vertices:
 	if len(v.groups) > 4:
@@ -37,13 +40,22 @@ for v in mesh.vertices:
 print("total of vertexes which has more than 4 bones:\t", count)
 
 # action
+print("")
+print("-------")
+print("action:")
+print("-------")
 obj = bpy.data.actions[0]
 print("frame_rage:\t", obj.frame_range)
 print("groups:\t\t", obj.groups)
 
 # scene and pose
+print("")
+print("---------------")
+print("scene and pose:")
+print("---------------")
 obj = bpy.data.scenes[0]
 obj.frame_set(10)
+obj.update()
 print("frame_current:\t", obj.frame_current)
 print("tail:\t\t", c_obj.pose.bones[ix].tail)
 print("location:\t", c_obj.pose.bones[ix].location)
@@ -53,3 +65,19 @@ print("scale:\t\t", c_obj.pose.bones[ix].scale)
 print("rotation_quaternion:\t", c_obj.pose.bones[ix].rotation_quaternion)
 print("tail:\t\t", c_obj.pose.bones[ix].bone.tail)
 print("bones[ix]:\t", c_obj.pose.bones[ix])
+print("matrix_basis:")
+print(c_obj.pose.bones[ix].matrix_basis)
+
+# object armature
+print("")
+print("----------------")
+print("object armature:")
+print("----------------")
+print("matrix_basis")
+print(o_arma.matrix_basis)
+print("matrix_local")
+print(o_arma.matrix_local)
+print("matrix_parent_inverse")
+print(o_arma.matrix_parent_inverse)
+print("matrix_world")
+print(o_arma.matrix_world)

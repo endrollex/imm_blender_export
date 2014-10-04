@@ -6,12 +6,11 @@ import os
 import bpy
 os.system("cls")
 
+#mesh
 mesh = bpy.data.meshes[0]
-
-print("------------------------------------------")
-print("Mesh, material and texture data structure:")
-print("------------------------------------------")
-
+print("-----")
+print("mesh:")
+print("-----")
 # check tessfaces, to avoid repeated calc_tessface
 if len(mesh.tessfaces) == 0:
 	mesh.calc_tessface()
@@ -21,6 +20,10 @@ print("vertices[0]:\t\t", mesh.vertices[0].co)
 print("normal[0]:\t\t", mesh.vertices[0].normal)
 
 # texture
+print("")
+print("--------")
+print("texture:")
+print("--------")
 try:
 	print("uv[0] (Tessface):\t", mesh.tessface_uv_textures[0].data[0].uv1)
 	print("tangent[0]:\t\t", "need compute")
@@ -30,6 +33,10 @@ except:
 	print("texture data is not prepared")
 
 # material
+print("")
+print("---------")
+print("material:")
+print("---------")
 try:
 	print("ambient:\t\t", mesh.materials[0].ambient)
 	print("diffuse:\t\t", mesh.materials[0].diffuse_color)
