@@ -1,6 +1,6 @@
 #
 # animation_glance.py
-# Animation data structure
+# animation data structure
 #
 import os
 import bpy
@@ -12,9 +12,9 @@ arma = bpy.data.objects[0].data
 mesh = bpy.data.objects[2].data
 c_obj = bpy.context.object
 
-# armature
+# armature and bone
 print("---------")
-print("armature:")
+print("armature and bone:")
 print("---------")
 ix = 0
 print("bones:\t\t", arma.bones)
@@ -22,7 +22,9 @@ print("index:\t\t", ix)
 print("bones[ix]:\t", arma.bones[ix])
 print("children:\t", arma.bones[ix].children)
 print("parent:\t\t", arma.bones[ix].parent)
+print("head:\t\t", arma.bones[ix].head)
 print("tail:\t\t", arma.bones[ix].tail)
+print("length:\t\t", arma.bones[ix].length)
 print("matrix:")
 print(arma.bones[ix].matrix)
 print("matrix_local:")
@@ -44,9 +46,12 @@ print("")
 print("-------")
 print("action:")
 print("-------")
-obj = bpy.data.actions[0]
-print("frame_rage:\t", obj.frame_range)
-print("groups:\t\t", obj.groups)
+try:
+	obj = bpy.data.actions[0]
+	print("frame_rage:\t", obj.frame_range)
+	print("groups:\t\t", obj.groups)
+except:
+	print("action data is not prepared")
 
 # scene and pose
 print("")
@@ -81,3 +86,15 @@ print("matrix_parent_inverse")
 print(o_arma.matrix_parent_inverse)
 print("matrix_world")
 print(o_arma.matrix_world)
+
+#
+print("")
+print("-----")
+print("test:")
+print("-----")
+import copy
+import mathutils
+bone_length = copy.deepcopy(arma.bones[ix].length)
+bone_head = copy.deepcopy(arma.bones[ix].head)
+bone_translation = mathutils.Matrix.Translation(mathutils.Vector((0, bone_length, 0)) + bone_head)
+print(bone_translation)

@@ -36,12 +36,12 @@ def prepare_uv():
 	return True
 
 # write text
-def write_text(path, info_list):
+def write_text(path, data_list):
 	fw = open(path, "w")
-	info_str = ""
-	for one in info_list:
-		info_str += one+"\n"
-	fw.write(info_str)
+	data_str = ""
+	for one in data_list:
+		data_str += one+"\n"
+	fw.write(data_str)
 	fw.close()
 
 # right hand to left hand vector3
@@ -251,16 +251,16 @@ def export_m3d():
 	g_normal = vector_format(r_normal)
 	r_tangent = raw_tangent(uv_len, r_position, r_normal, r_uv_and_face[0], r_triangle)
 	g_tangent = vector_format(r_tangent)
-	str_out = []
+	str_vertex = []
 	for ix in range(0, uv_len):
 		temp = "Position: "+g_position[ix]+"\n"
 		temp += "Tangent: "+g_tangent[ix][0:-2]+"\n"
 		temp += "Normal: "+g_normal[ix]+"\n"
 		temp += "TexCoord: "+g_uv[ix]+"\n"
-		str_out.append(temp)
-	export = export_dir+"export_v.txt"
-	write_text(export, str_out)
-	export = export_dir+"export_t.txt"
+		str_vertex.append(temp)
+	export = export_dir+"export_vertex.txt"
+	write_text(export, str_vertex)
+	export = export_dir+"export_triangle.txt"
 	write_text(export, g_triangle)
 	print("-------------------")
 	print("Export information:")

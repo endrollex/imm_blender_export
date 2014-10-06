@@ -1,6 +1,6 @@
 #
 # static_glance.py
-# Mesh, material and texture data structure
+# mesh, material and texture data structure
 #
 import os
 import bpy
