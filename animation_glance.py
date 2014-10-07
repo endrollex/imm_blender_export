@@ -13,9 +13,9 @@ mesh = bpy.data.objects[2].data
 c_obj = bpy.context.object
 
 # armature and bone
-print("---------")
+print("------------------")
 print("armature and bone:")
-print("---------")
+print("------------------")
 ix = 0
 print("bones:\t\t", arma.bones)
 print("index:\t\t", ix)
