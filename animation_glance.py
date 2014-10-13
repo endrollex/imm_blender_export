@@ -62,6 +62,7 @@ obj = bpy.data.scenes[0]
 obj.frame_set(10)
 obj.update()
 print("frame_current:\t", obj.frame_current)
+print("head:\t\t", c_obj.pose.bones[ix].head)
 print("tail:\t\t", c_obj.pose.bones[ix].tail)
 print("location:\t", c_obj.pose.bones[ix].location)
 print("matrix:")
@@ -96,5 +97,6 @@ import copy
 import mathutils
 bone_length = copy.deepcopy(arma.bones[ix].length)
 bone_head = copy.deepcopy(arma.bones[ix].head)
-bone_translation = mathutils.Matrix.Translation(mathutils.Vector((0, bone_length, 0)) + bone_head)
-print(bone_translation)
+bone_tail = copy.deepcopy(arma.bones[ix].tail)
+bone_to_parent = mathutils.Matrix.Translation(bone_tail - bone_head)
+print(bone_to_parent)
