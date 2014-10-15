@@ -6,6 +6,7 @@ import os
 import bpy
 os.system("cls")
 
+# refer
 o_arma = bpy.data.objects[0]
 o_mesh = bpy.data.objects[2]
 arma = bpy.data.objects[0].data
@@ -88,7 +89,7 @@ print(o_arma.matrix_parent_inverse)
 print("matrix_world")
 print(o_arma.matrix_world)
 
-#
+# test
 print("")
 print("-----")
 print("test:")
@@ -100,3 +101,5 @@ bone_head = copy.deepcopy(arma.bones[ix].head)
 bone_tail = copy.deepcopy(arma.bones[ix].tail)
 bone_to_parent = mathutils.Matrix.Translation(bone_tail - bone_head)
 print(bone_to_parent)
+bone_to_root = o_arma.matrix_basis
+print(bone_to_root)

@@ -6,8 +6,9 @@ import os
 import bpy
 os.system("cls")
 
-#mesh
+# refer
 mesh = bpy.data.meshes[0]
+
 print("-----")
 print("mesh:")
 print("-----")
