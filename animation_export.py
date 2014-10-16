@@ -34,7 +34,7 @@ def to_parent(ix):
 	# assume there is only one root bone
 	if arma.bones[ix].parent == None:
 		return o_arma.matrix_basis
-	return mathutils.Matrix.Translation(arma.bones[ix].parent.tail - arma.bones[ix].parent.head)
+	return mathutils.Matrix.Translation(arma.bones[ix].parent.tail_local - arma.bones[ix].parent.head_local)
 
 # to root i
 def to_root_i(ix):

@@ -23,13 +23,9 @@ print("index:\t\t", ix)
 print("bones[ix]:\t", arma.bones[ix])
 print("children:\t", arma.bones[ix].children)
 print("parent:\t\t", arma.bones[ix].parent)
-print("head:\t\t", arma.bones[ix].head)
-print("tail:\t\t", arma.bones[ix].tail)
+print("head_local:\t", arma.bones[ix].head_local)
+print("tail_local:\t", arma.bones[ix].tail_local)
 print("length:\t\t", arma.bones[ix].length)
-print("matrix:")
-print(arma.bones[ix].matrix)
-print("matrix_local:")
-print(arma.bones[ix].matrix_local)
 
 # maximum number of bones per vertex
 print("")
@@ -88,18 +84,3 @@ print("matrix_parent_inverse")
 print(o_arma.matrix_parent_inverse)
 print("matrix_world")
 print(o_arma.matrix_world)
-
-# test
-print("")
-print("-----")
-print("test:")
-print("-----")
-import copy
-import mathutils
-bone_length = copy.deepcopy(arma.bones[ix].length)
-bone_head = copy.deepcopy(arma.bones[ix].head)
-bone_tail = copy.deepcopy(arma.bones[ix].tail)
-bone_to_parent = mathutils.Matrix.Translation(bone_tail - bone_head)
-print(bone_to_parent)
-bone_to_root = o_arma.matrix_basis
-print(bone_to_root)
