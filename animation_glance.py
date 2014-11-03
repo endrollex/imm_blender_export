@@ -9,9 +9,8 @@ os.system("cls")
 # refer
 o_arma = bpy.data.objects[0]
 o_mesh = bpy.data.objects[2]
-arma = bpy.data.objects[0].data
-mesh = bpy.data.objects[2].data
-c_obj = bpy.context.object
+arma = o_arma.data
+mesh = o_mesh.data
 
 # armature and bone
 print("------------------")
@@ -59,17 +58,17 @@ obj = bpy.data.scenes[0]
 obj.frame_set(10)
 obj.update()
 print("frame_current:\t", obj.frame_current)
-print("head:\t\t", c_obj.pose.bones[ix].head)
-print("tail:\t\t", c_obj.pose.bones[ix].tail)
-print("location:\t", c_obj.pose.bones[ix].location)
+print("head:\t\t", o_arma.pose.bones[ix].head)
+print("tail:\t\t", o_arma.pose.bones[ix].tail)
+print("location:\t", o_arma.pose.bones[ix].location)
 print("matrix:")
-print(c_obj.pose.bones[ix].matrix)
-print("scale:\t\t", c_obj.pose.bones[ix].scale)
-print("rotation_quaternion:\t", c_obj.pose.bones[ix].rotation_quaternion)
-print("tail:\t\t", c_obj.pose.bones[ix].bone.tail)
-print("bones[ix]:\t", c_obj.pose.bones[ix])
+print(o_arma.pose.bones[ix].matrix)
+print("scale:\t\t", o_arma.pose.bones[ix].scale)
+print("rotation_quaternion:\t", o_arma.pose.bones[ix].rotation_quaternion)
+print("tail:\t\t", o_arma.pose.bones[ix].bone.tail)
+print("bones[ix]:\t", o_arma.pose.bones[ix])
 print("matrix_basis:")
-print(c_obj.pose.bones[ix].matrix_basis)
+print(o_arma.pose.bones[ix].matrix_basis)
 
 # object armature
 print("")
