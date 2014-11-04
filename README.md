@@ -1,8 +1,6 @@
 imm_blender_export
 ==================
-
-Python
-
+Python  
 immature Blender export
 
 Introduction:
@@ -11,9 +9,10 @@ Introduction:
 
 Files Explanation:
 ------------------
+* **animation_export.py**: Export animation data to text, setting is in this file.
 * **animation_glance.py**: Have a look of animation data structure.
-* **static_glance.py**: Have a look of static data structure.
 * **static_export.py**: Export static data to text, setting is in this file.
+* **static_glance.py**: Have a look of static data structure.
 
 In Development:
 ---------------
