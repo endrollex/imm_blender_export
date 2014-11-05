@@ -31,9 +31,9 @@ for index, item in enumerate(arma.bones):
 
 # offset transformation, mesh to armature
 def get_offset(ix):
-	return arma.bones[ix].matrix_local
+	return mathutils.Matrix.transposed(arma.bones[ix].matrix_local)
 
-# get postion, quat, scale 
+# get postion, quat, scale
 def get_mat_deco(ix):
 	return o_arma.pose.bones[ix].matrix.decompose()
 

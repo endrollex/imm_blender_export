@@ -11,20 +11,19 @@ o_arma = bpy.data.objects[0]
 o_mesh = bpy.data.objects[2]
 arma = o_arma.data
 mesh = o_mesh.data
+scene = bpy.data.scenes[0]
 
 # armature and bone
 print("------------------")
 print("armature and bone:")
 print("------------------")
-ix = 0
+ix = 1
 print("bones:\t\t", arma.bones)
 print("index:\t\t", ix)
 print("bones[ix]:\t", arma.bones[ix])
 print("children:\t", arma.bones[ix].children)
 print("parent:\t\t", arma.bones[ix].parent)
 print("head_local:\t", arma.bones[ix].head_local)
-print("tail_local:\t", arma.bones[ix].tail_local)
-print("length:\t\t", arma.bones[ix].length)
 
 # maximum number of bones per vertex
 print("")
@@ -43,9 +42,9 @@ print("-------")
 print("action:")
 print("-------")
 try:
-	obj = bpy.data.actions[0]
-	print("frame_rage:\t", obj.frame_range)
-	print("groups:\t\t", obj.groups)
+	action = bpy.data.actions[0]
+	print("frame_rage:\t", action.frame_range)
+	print("groups:\t\t", action.groups)
 except:
 	print("action data is not prepared")
 
@@ -54,32 +53,11 @@ print("")
 print("---------------")
 print("scene and pose:")
 print("---------------")
-obj = bpy.data.scenes[0]
-obj.frame_set(10)
-obj.update()
-print("frame_current:\t", obj.frame_current)
+
+scene.frame_set(10)
+scene.update()
+print("frame_current:\t", scene.frame_current)
 print("head:\t\t", o_arma.pose.bones[ix].head)
-print("tail:\t\t", o_arma.pose.bones[ix].tail)
-print("location:\t", o_arma.pose.bones[ix].location)
-print("matrix:")
-print(o_arma.pose.bones[ix].matrix)
 print("scale:\t\t", o_arma.pose.bones[ix].scale)
 print("rotation_quaternion:\t", o_arma.pose.bones[ix].rotation_quaternion)
-print("tail:\t\t", o_arma.pose.bones[ix].bone.tail)
 print("bones[ix]:\t", o_arma.pose.bones[ix])
-print("matrix_basis:")
-print(o_arma.pose.bones[ix].matrix_basis)
-
-# object armature
-print("")
-print("----------------")
-print("object armature:")
-print("----------------")
-print("matrix_basis")
-print(o_arma.matrix_basis)
-print("matrix_local")
-print(o_arma.matrix_local)
-print("matrix_parent_inverse")
-print(o_arma.matrix_parent_inverse)
-print("matrix_world")
-print(o_arma.matrix_world)
