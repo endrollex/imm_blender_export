@@ -62,15 +62,15 @@ def coordinate_to_str(list_in):
 		str_out = str_out+" "+str(round_sig(list_in[ix]))
 	return str_out
 
-# vector format
-def vector_format(list_in):
+# format vector
+def format_vector(list_in):
 	rt_list = []
 	for l in list_in:
 		rt_list.append(coordinate_to_str(l))
 	return rt_list
 
-# triangle format
-def triangle_format(list_in):
+# format triangle
+def format_triangle(list_in):
 	rt_list = []
 	for t in list_in:
 		rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
@@ -79,7 +79,7 @@ def triangle_format(list_in):
 # get uv list and tessface list
 # Blender's uv is per tessface
 # we need uv per vertex
-def raw_uv_and_face():
+def data_uv_and_face():
 	# store vertex of tessface
 	tessface_list = []
 	# check tessfaces, to avoid repeated calc_tessface
@@ -134,9 +134,9 @@ def raw_uv_and_face():
 
 # polygons tangent
 # it can not use, just for test
-def raw_tangent_p(uv_len, uv_ex_dict):
+def data_tangent_p(len_uv, uv_ex_dict):
 	rt_list = []
-	for ix in range(0, uv_len):
+	for ix in range(0, len_uv):
 		rt_list.append(mathutils.Vector((0.0, 0.0, 0.0, 1.0)))
 	mesh.calc_tangents()
 	for poly in mesh.polygons:
@@ -154,10 +154,10 @@ def raw_tangent_p(uv_len, uv_ex_dict):
 # polygons tangent is not corresponding with tessface
 # it is needed to compute per-vertex tangent spaces for an arbitrary triangle mesh
 # Algorithm from Mathematics for 3D Game Programming and Computer Graphics, 3rd ed. Listing 7.1
-def raw_tangent(uv_len, position_list, normal_list, uv_list, triangle_list):
+def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 	tan1 = []
 	tan2 = []
-	for ix in range(0, uv_len):
+	for ix in range(0, len_uv):
 		tan1.append(mathutils.Vector((0.0, 0.0, 0.0)))
 		tan2.append(mathutils.Vector((0.0, 0.0, 0.0)))
 	for ix in range(0, len(triangle_list)):
@@ -199,7 +199,7 @@ def raw_tangent(uv_len, position_list, normal_list, uv_list, triangle_list):
 		tan2[i3] += tdir
 	#
 	tangent = []
-	for ix in range(0, uv_len):
+	for ix in range(0, len_uv):
 		n = normal_list[ix]
 		t = tan1[ix]
 		tangent.append(mathutils.Vector((0.0, 0.0, 0.0, 1.0)))
@@ -208,12 +208,12 @@ def raw_tangent(uv_len, position_list, normal_list, uv_list, triangle_list):
 		# Calculate handedness.
 		tangent[ix].w = -1.0 if (n.cross(t)).dot(tan2[ix]) < 0.0 else 1.0
 	# dummy tangent
-	#for ix in range(0, uv_len):
+	#for ix in range(0, len_uv):
 	#	tangent[ix] = mathutils.Vector((0.0, 0.0, 0.0, 1.0))
 	return tangent
 	
 # triangle list
-def raw_triangle(tessface_list):
+def data_triangle(tessface_list):
 	rt_list = []
 	for t in tessface_list:
 		rt_list.append([t[0], t[2], t[1]]) if is_left_hand else rt_list.append([t[0], t[1], t[2]])
@@ -222,52 +222,52 @@ def raw_triangle(tessface_list):
 	return rt_list
 
 # position list
-def raw_position(uv_len, uv_ex_dict):
+def data_position(len_uv, uv_ex_dict):
 	rt_list = []
 	for v in mesh.vertices:
 		rt_list.append(to_left_hand_vec3(v.co) if is_left_hand else v.co)
-	for ix in range(uv_len-len(uv_ex_dict), uv_len):
+	for ix in range(len_uv-len(uv_ex_dict), len_uv):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
 
 # normal list
-def raw_normal(uv_len, uv_ex_dict):
+def data_normal(len_uv, uv_ex_dict):
 	rt_list = []
 	for v in mesh.vertices:
 		rt_list.append(to_left_hand_vec3(v.normal) if is_left_hand else v.normal)
-	for ix in range(uv_len-len(uv_ex_dict), uv_len):
+	for ix in range(len_uv-len(uv_ex_dict), len_uv):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
 
 # export m3d format parts
 def export_m3d():
-	r_uv_and_face = raw_uv_and_face()
-	uv_len = len(r_uv_and_face[0])
-	g_uv = vector_format(r_uv_and_face[0])
-	r_triangle = raw_triangle(r_uv_and_face[2])
-	g_triangle = triangle_format(r_triangle)
-	r_position = raw_position(uv_len, r_uv_and_face[1])
-	g_position = vector_format(r_position)
-	r_normal = raw_normal(uv_len, r_uv_and_face[1])
-	g_normal = vector_format(r_normal)
-	r_tangent = raw_tangent(uv_len, r_position, r_normal, r_uv_and_face[0], r_triangle)
-	g_tangent = vector_format(r_tangent)
-	str_vertex = []
-	for ix in range(0, uv_len):
-		temp = "Position: "+g_position[ix]+"\n"
-		temp += "Tangent: "+g_tangent[ix][0:-2]+"\n"
-		temp += "Normal: "+g_normal[ix]+"\n"
-		temp += "TexCoord: "+g_uv[ix]+"\n"
-		str_vertex.append(temp)
+	d_uv_and_face = data_uv_and_face()
+	len_uv = len(d_uv_and_face[0])
+	d_triangle = data_triangle(d_uv_and_face[2])
+	d_position = data_position(len_uv, d_uv_and_face[1])
+	d_normal = data_normal(len_uv, d_uv_and_face[1])
+	d_tangent = data_tangent(len_uv, d_position, d_normal, d_uv_and_face[0], d_triangle)
+	txt_uv = format_vector(d_uv_and_face[0])
+	txt_triangle = format_triangle(d_triangle)
+	txt_position = format_vector(d_position)
+	txt_normal = format_vector(d_normal)
+	txt_tangent = format_vector(d_tangent)
+	txt_vertex = []
+	for ix in range(0, len_uv):
+		temp = "Position: "+txt_position[ix]+"\n"
+		temp += "Tangent: "+txt_tangent[ix][0:-2]+"\n"
+		temp += "Normal: "+txt_normal[ix]+"\n"
+		temp += "TexCoord: "+txt_uv[ix]+"\n"
+		txt_vertex.append(temp)
 	export = export_dir+"export_vertex.txt"
-	write_text(export, str_vertex)
+	write_text(export, txt_vertex)
 	export = export_dir+"export_triangle.txt"
-	write_text(export, g_triangle)
+	write_text(export, txt_triangle)
 	print("-------------------")
 	print("Export information:")
 	print("-------------------")
-	print("vertices:\t"+str(uv_len))
-	print("triangles:\t"+str(len(g_triangle)))
+	print("vertices:\t"+str(len_uv))
+	print("triangles:\t"+str(len(txt_triangle)))
 	print("export dir:\t"+export_dir)
 
 # main

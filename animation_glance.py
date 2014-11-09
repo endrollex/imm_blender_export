@@ -12,6 +12,7 @@ o_mesh = bpy.data.objects[2]
 arma = o_arma.data
 mesh = o_mesh.data
 scene = bpy.data.scenes[0]
+action = None
 
 # armature and bone
 print("------------------")

@@ -14,8 +14,8 @@ o_mesh = bpy.data.objects[2]
 arma = o_arma.data
 
 # ini var
-mat_to_root = []
-mat_offset = []
+data_offset = []
+data_hierarchy = []
 
 # get index
 def get_index(item, bpy_data):
@@ -24,23 +24,31 @@ def get_index(item, bpy_data):
 			return index
 	return -1
 
-# bone hierarchy
-print("bone hierarchy:")
-for index, item in enumerate(arma.bones):
-	print(index, get_index(item.parent, arma.bones))
+# get bone hierarchy
+def data_hierarchy():
+	rt_list = []
+	for index, item in enumerate(arma.bones):
+		rt_list.append([index, get_index(item.parent, arma.bones)])
+	return rt_list
 
 # offset transformation, mesh to armature
-def get_offset(ix):
+def data_offset(ix):
 	return mathutils.Matrix.transposed(arma.bones[ix].matrix_local)
 
 # get postion, quat, scale
 def get_mat_deco(ix):
 	return o_arma.pose.bones[ix].matrix.decompose()
 
+# set frame
+def set_frame(frame):
+	scene.frame_set(frame)
+	scene.update()
+
 # test
 print("test")
-print(get_offset(3))
+print(data_offset(3))
 loc, rot, sca = get_mat_deco(3)
 print(loc)
 print(rot)
 print(sca)
+print(data_hierarchy())
