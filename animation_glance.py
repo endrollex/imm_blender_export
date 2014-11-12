@@ -45,7 +45,6 @@ print("-------")
 try:
 	action = bpy.data.actions[0]
 	print("frame_rage:\t", action.frame_range)
-	print("groups:\t\t", action.groups)
 except:
 	print("action data is not prepared")
 
@@ -57,8 +56,9 @@ print("---------------")
 
 scene.frame_set(10)
 scene.update()
+print("fps:\t\t", scene.render.fps)
 print("frame_current:\t", scene.frame_current)
+print("bones[ix]:\t", o_arma.pose.bones[ix])
 print("head:\t\t", o_arma.pose.bones[ix].head)
 print("scale:\t\t", o_arma.pose.bones[ix].scale)
 print("rotation_quaternion:\t", o_arma.pose.bones[ix].rotation_quaternion)
-print("bones[ix]:\t", o_arma.pose.bones[ix])
