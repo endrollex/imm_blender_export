@@ -14,7 +14,7 @@ mesh = bpy.data.meshes[0]
 
 # setting export dir
 export_dir = "D:\\Dropbox\\imm_blender_export\\"
-is_left_hand = True
+is_left_hand = False
 
 # round sig
 def round_sig(x, sig = 6):
@@ -56,7 +56,6 @@ def uv_flip_x(vec2_in):
 
 # coordinate to string
 def coordinate_to_str(list_in):
-	str_out = ""
 	str_out = str(round_sig(list_in[0]))
 	for ix in range(1, len(list_in)):
 		str_out = str_out+" "+str(round_sig(list_in[ix]))
@@ -129,7 +128,6 @@ def data_uv_and_face():
 	uv_list = []
 	for t in temp:
 		uv_list.append(t[0])
-	# uv_ex_dict: uv index (exceed vertex count) is mapping vertex index
 	return [uv_list, uv_ex_dict, tessface_list]
 
 # polygons tangent
@@ -239,6 +237,17 @@ def data_normal(len_uv, uv_ex_dict):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
 
+# package vertex
+def package_vertex(len_uv, txt_position, txt_normal, txt_tangent, txt_uv):
+	rt_list = []
+	for ix in range(0, len_uv):
+		temp = "Position: "+txt_position[ix]+"\n"
+		temp += "Tangent: "+txt_tangent[ix][0:-2]+"\n"
+		temp += "Normal: "+txt_normal[ix]+"\n"
+		temp += "TexCoord: "+txt_uv[ix]+"\n"
+		rt_list.append(temp)
+	return rt_list
+
 # export m3d format parts
 def export_m3d():
 	d_uv_and_face = data_uv_and_face()
@@ -252,13 +261,8 @@ def export_m3d():
 	txt_position = format_vector(d_position)
 	txt_normal = format_vector(d_normal)
 	txt_tangent = format_vector(d_tangent)
-	txt_vertex = []
-	for ix in range(0, len_uv):
-		temp = "Position: "+txt_position[ix]+"\n"
-		temp += "Tangent: "+txt_tangent[ix][0:-2]+"\n"
-		temp += "Normal: "+txt_normal[ix]+"\n"
-		temp += "TexCoord: "+txt_uv[ix]+"\n"
-		txt_vertex.append(temp)
+	txt_vertex = package_vertex(len_uv, txt_position, txt_normal, txt_tangent, txt_uv)
+	# write
 	export = export_dir+"export_vertex.txt"
 	write_text(export, txt_vertex)
 	export = export_dir+"export_triangle.txt"
