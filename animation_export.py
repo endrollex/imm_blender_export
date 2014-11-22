@@ -92,17 +92,19 @@ def data_time_p_s_r():
 	for bone in o_arma.pose.bones:
 		for key in action.fcurves[0].keyframe_points:
 			time_list.append(key.co[0]*frame_time)
-		#
+			pos_list.append(0)
+			sca_list.append(0)
+			rot_list.append(0)
 		cnt_bone += 1
 	# position scale rotation
-	for key in action.fcurves[0].keyframe_points:
+	for ix_key, key in enumerate(action.fcurves[0].keyframe_points):
 		scene.frame_set(key.co[0])
 		scene.update
 		for ix in range(0, cnt_bone):
 			loc, rot, sca = o_arma.pose.bones[ix].matrix.decompose()
-			pos_list.append(loc)
-			sca_list.append(sca)
-			rot_list.append(rot)
+			pos_list[ix*cnt_bone+ix_key] = loc
+			sca_list[ix*cnt_bone+ix_key] = sca
+			rot_list[ix*cnt_bone+ix_key] = rot
 	return [time_list, pos_list, sca_list, rot_list]
 
 # data blender indices and weights
