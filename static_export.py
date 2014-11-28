@@ -13,8 +13,8 @@ os.system("cls")
 mesh = bpy.data.meshes[0]
 
 # setting export dir
-export_dir = "D:\\Dropbox\\imm_blender_export\\"
-is_left_hand = False
+export_dir = "C:\\Dropbox\\imm_blender_export\\"
+is_left_hand = True
 
 # round sig
 def round_sig(x, sig = 6):

@@ -7,15 +7,14 @@ import copy
 import bpy
 import mathutils
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import static_export
 os.system("cls")
 
-#
+# setting
 is_left_hand = static_export.is_left_hand
 export_dir = static_export.export_dir
-is_left_hand = False
-static_export.is_left_hand = False
+static_export.is_left_hand = is_left_hand
 
 # refer
 o_arma = bpy.data.objects[0]
@@ -24,6 +23,10 @@ arma = o_arma.data
 mesh = o_mesh.data
 scene = bpy.data.scenes[0]
 action = bpy.data.actions[0]
+
+# matrix right to left hand
+def matrix_to_left(mat_in):
+	None
 
 # get index
 def get_index(item, bpy_data):
@@ -98,13 +101,14 @@ def data_time_p_s_r():
 		cnt_bone += 1
 	# position scale rotation
 	for ix_key, key in enumerate(action.fcurves[0].keyframe_points):
+		len_key = len(action.fcurves[0].keyframe_points)
 		scene.frame_set(key.co[0])
 		scene.update
 		for ix in range(0, cnt_bone):
-			loc, rot, sca = o_arma.pose.bones[ix].matrix.decompose()
-			pos_list[ix*cnt_bone+ix_key] = loc
-			sca_list[ix*cnt_bone+ix_key] = sca
-			rot_list[ix*cnt_bone+ix_key] = rot
+			loc, rot, sca = o_arma.pose.bones[ix].matrix.inverted().decompose()
+			pos_list[ix*len_key+ix_key] = loc
+			sca_list[ix*len_key+ix_key] = sca
+			rot_list[ix*len_key+ix_key] = rot
 	return [time_list, pos_list, sca_list, rot_list]
 
 # data blender indices and weights
@@ -213,3 +217,7 @@ static_export.write_text(export, txt_vertex)
 
 #
 print("exported")
+
+#
+mat_test = mathutils.Matrix()
+print(mat_test)
