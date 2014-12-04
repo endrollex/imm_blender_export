@@ -152,6 +152,7 @@ def data_tangent_p(len_uv, uv_ex_dict):
 # polygons tangent is not corresponding with tessface
 # it is needed to compute per-vertex tangent spaces for an arbitrary triangle mesh
 # Algorithm from Mathematics for 3D Game Programming and Computer Graphics, 3rd ed. Listing 7.1
+# test sometimes will div zero, i do not know why
 def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 	tan1 = []
 	tan2 = []
@@ -184,7 +185,8 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 		r = 0
 		test = s1 * t2 - s2 * t1
 		if test == 0:
-			print("error: div zero, uv may be wrong")
+			None
+			#print("error: div zero, uv may be wrong")
 		else:
 			r = 1.0 / test
 		sdir = mathutils.Vector(((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r))
@@ -270,6 +272,7 @@ def export_m3d():
 	print("-------------------")
 	print("Export information:")
 	print("-------------------")
+	print("left hand:\t"+str(is_left_hand))
 	print("vertices:\t"+str(len_uv))
 	print("triangles:\t"+str(len(txt_triangle)))
 	print("export dir:\t"+export_dir)

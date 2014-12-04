@@ -12,7 +12,7 @@ import static_export
 os.system("cls")
 
 # setting
-is_left_hand = static_export.is_left_hand
+is_left_hand = True
 export_dir = static_export.export_dir
 static_export.is_left_hand = is_left_hand
 
@@ -25,8 +25,22 @@ scene = bpy.data.scenes[0]
 action = bpy.data.actions[0]
 
 # matrix right to left hand
-def matrix_to_left(mat_in):
-	None
+def to_left_matrix(mat):
+	mat_rt = mathutils.Matrix()
+	mat_rt[0][0:3] = mat[0][0], mat[0][2], mat[0][1]
+	mat_rt[1][0:3] = mat[2][0], mat[2][2], mat[2][1]
+	mat_rt[2][0:3] = mat[1][0], mat[1][2], mat[1][1]
+	mat_rt[3][0:3] = mat[3][0], mat[3][2], mat[3][1]
+	return mat_rt
+
+# matrix right to left hand
+def to_left_matrix_b(mat):
+	mat_rt = mathutils.Matrix()
+	mat_rt[0][0:3] = mat[0][0], mat[0][2], mat[0][1]
+	mat_rt[1][0:3] = mat[2][0], mat[2][2], mat[2][1]
+	mat_rt[2][0:3] = mat[1][0], mat[1][2], mat[1][1]
+	mat_rt[3][0:3] = mat[3][0], mat[3][2], mat[3][1]
+	return mat_rt
 
 # get index
 def get_index(item, bpy_data):
@@ -67,6 +81,14 @@ def number_to_str(list_in):
 		rt_list.append(str(static_export.round_sig(num)))
 	return rt_list
 
+# get to parent matrix
+def get_to_parent(ix):
+	# test
+	if ix == 0:
+		return o_arma.pose.bones[0].matrix.inverted()
+	mat_to_p = o_arma.pose.bones[ix-1].matrix.inverted()*o_arma.pose.bones[ix].matrix
+	return mat_to_p.inverted()
+
 # data bone hierarchy
 def data_hierarchy():
 	rt_list = []
@@ -79,7 +101,10 @@ def data_hierarchy():
 def data_offset():
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
-		rt_list.append(mathutils.Matrix.transposed(arma.bones[ix].matrix_local))
+		mat = mathutils.Matrix.transposed(arma.bones[ix].matrix_local)
+		if is_left_hand:
+			mat = to_left_matrix(mat)
+		rt_list.append(mat)
 	return rt_list
 
 # data time position scale rotation
@@ -105,7 +130,17 @@ def data_time_p_s_r():
 		scene.frame_set(key.co[0])
 		scene.update
 		for ix in range(0, cnt_bone):
-			loc, rot, sca = o_arma.pose.bones[ix].matrix.inverted().decompose()
+			'''
+			mat_to_p = mathutils.Matrix.transposed(get_to_parent(ix))
+			mat_to_p = to_left_matrix(mat_to_p)
+			mat_to_p = mathutils.Matrix.transposed(mat_to_p)
+			loc, rot, sca = mat_to_p.decompose()
+			'''
+			loc, rot, sca = get_to_parent(ix).decompose()
+			#if is_left_hand:
+			#	 loc = static_export.to_left_hand_vec3(loc)
+			#'''
+			rot = mathutils.Quaternion((rot.x, rot.y, rot.z, rot.w))
 			pos_list[ix*len_key+ix_key] = loc
 			sca_list[ix*len_key+ix_key] = sca
 			rot_list[ix*len_key+ix_key] = rot
@@ -113,7 +148,6 @@ def data_time_p_s_r():
 
 # data blender indices and weights
 def data_b_index_weight():
-	rt_list = []
 	b_index = []
 	b_weight = []
 	for vert in mesh.vertices:
@@ -173,51 +207,80 @@ def package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b
 		rt_list.append(temp)
 	return rt_list
 
-# test
-print("test")
-d_offset = data_offset()
-d_hierarchy = data_hierarchy()
-d_time_p_s_r = data_time_p_s_r()
-d_b_index_weight = data_b_index_weight()
-txt_offset = package_offset(format_matrix(d_offset))
-txt_hierarchy = package_hierarchy(d_hierarchy)
-txt_time = number_to_str(d_time_p_s_r[0])
-txt_pos = static_export.format_vector(d_time_p_s_r[1])
-txt_sca = static_export.format_vector(d_time_p_s_r[2])
-txt_rot = static_export.format_vector(d_time_p_s_r[3])
-txt_time_p_s_r = package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot)
-#
-d_uv_and_face = static_export.data_uv_and_face()
-len_uv = len(d_uv_and_face[0])
-d_triangle = static_export.data_triangle(d_uv_and_face[2])
-d_position = static_export.data_position(len_uv, d_uv_and_face[1])
-d_normal = static_export.data_normal(len_uv, d_uv_and_face[1])
-d_tangent = static_export.data_tangent(len_uv, d_position, d_normal, d_uv_and_face[0], d_triangle)
-txt_uv = static_export.format_vector(d_uv_and_face[0])
-txt_triangle = static_export.format_triangle(d_triangle)
-txt_position = static_export.format_vector(d_position)
-txt_normal = static_export.format_vector(d_normal)
-txt_tangent = static_export.format_vector(d_tangent)
+# export m3d anim format parts
+def export_m3d_anim():
+	# get data and format them
+	d_offset = data_offset()
+	d_hierarchy = data_hierarchy()
+	d_time_p_s_r = data_time_p_s_r()
+	d_b_index_weight = data_b_index_weight()
+	txt_offset = package_offset(format_matrix(d_offset))
+	txt_hierarchy = package_hierarchy(d_hierarchy)
+	txt_time = number_to_str(d_time_p_s_r[0])
+	txt_pos = static_export.format_vector(d_time_p_s_r[1])
+	txt_sca = static_export.format_vector(d_time_p_s_r[2])
+	txt_rot = static_export.format_vector(d_time_p_s_r[3])
+	txt_time_p_s_r = package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot)
+	# arrange vertex accroding uv
+	d_uv_and_face = static_export.data_uv_and_face()
+	len_uv = len(d_uv_and_face[0])
+	d_triangle = static_export.data_triangle(d_uv_and_face[2])
+	d_position = static_export.data_position(len_uv, d_uv_and_face[1])
+	d_normal = static_export.data_normal(len_uv, d_uv_and_face[1])
+	d_tangent = static_export.data_tangent(len_uv, d_position, d_normal, d_uv_and_face[0], d_triangle)
+	txt_uv = static_export.format_vector(d_uv_and_face[0])
+	txt_triangle = static_export.format_triangle(d_triangle)
+	txt_position = static_export.format_vector(d_position)
+	txt_normal = static_export.format_vector(d_normal)
+	txt_tangent = static_export.format_vector(d_tangent)
+	# bone weight and index
+	d_b_index_weight = data_b_index_weight_add(len_uv, d_uv_and_face[1], d_b_index_weight)
+	txt_b_index = format_index(d_b_index_weight[0])
+	txt_b_weight = static_export.format_vector(d_b_index_weight[1])
+	txt_vertex = package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight)
+	# export text
+	export = export_dir+"export_offset.txt"
+	static_export.write_text(export, txt_offset)
+	export = export_dir+"export_hierarchy.txt"
+	static_export.write_text(export, txt_hierarchy)
+	export = export_dir+"export_time_p_s_r.txt"
+	static_export.write_text(export, txt_time_p_s_r)
+	export = export_dir+"export_vertex_a.txt"
+	static_export.write_text(export, txt_vertex)
+	print("-------------------")
+	print("Export information:")
+	print("-------------------")
+	print("left hand:\t"+str(is_left_hand))
+	print("export dir:\t"+export_dir)
+
+# main
+export_m3d_anim()
 
 #
-d_b_index_weight = data_b_index_weight_add(len_uv, d_uv_and_face[1], d_b_index_weight)
-txt_b_index = format_index(d_b_index_weight[0])
-txt_b_weight = static_export.format_vector(d_b_index_weight[1])
-txt_vertex = package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight)
+'''
+mat_off0 = arma.bones[0].matrix_local.copy()
+mat_off1 = arma.bones[1].matrix_local.copy()
+mat_sca = mathutils.Matrix.Scale(1, 4)
+mat_loc0 = mathutils.Matrix.Translation((0.0, 0.0, 0.0))
+quat_a = mathutils.Quaternion((0.5, -0.5, -0.5, -0.5))
+mat_rot0 = quat_a.to_matrix().to_4x4()
+mat_out0 = mat_loc0 * mat_rot0 * mat_sca
+mat_loc1 = mathutils.Matrix.Translation((-1.3456e-07, -0.99999, -0.00452477))
+quat_a = mathutils.Quaternion((0.999997, 0.00226239, -1.53629e-08, -6.7315e-08))
+mat_rot1 = quat_a.to_matrix().to_4x4()
+mat_out1 = mat_loc1 * mat_rot1 * mat_sca
+mat_off0_t = mathutils.Matrix.transposed(mat_off0)
+mat_off1_t = mathutils.Matrix.transposed(mat_off1)
+mat_out0_t = mathutils.Matrix.transposed(mat_out0)
+mat_out1_t = mathutils.Matrix.transposed(mat_out1)
+mat_f1_t = mat_off1_t*mat_out1_t*mat_out0_t
+mat_f1_t_i = mat_out0_t*mat_out1_t*mat_off1_t
+mat_f1 = mat_off1*mat_out1*mat_out0
+mat_f1_i = mat_out0*mat_out1*mat_off1
+#print(mat_f1)
+#print(mat_f1_i)
+print(mat_f1_t)
+print(mat_f1_t_i)
+'''
 
 #
-export = export_dir+"export_offset.txt"
-static_export.write_text(export, txt_offset)
-export = export_dir+"export_hierarchy.txt"
-static_export.write_text(export, txt_hierarchy)
-export = export_dir+"export_time_p_s_r.txt"
-static_export.write_text(export, txt_time_p_s_r)
-export = export_dir+"export_vertex_a.txt"
-static_export.write_text(export, txt_vertex)
-
-#
-print("exported")
-
-#
-mat_test = mathutils.Matrix()
-print(mat_test)
