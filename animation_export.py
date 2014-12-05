@@ -26,20 +26,21 @@ action = bpy.data.actions[0]
 
 # matrix right to left hand
 def to_left_matrix(mat):
-	mat_rt = mathutils.Matrix()
-	mat_rt[0][0:3] = mat[0][0], mat[0][2], mat[0][1]
-	mat_rt[1][0:3] = mat[2][0], mat[2][2], mat[2][1]
-	mat_rt[2][0:3] = mat[1][0], mat[1][2], mat[1][1]
-	mat_rt[3][0:3] = mat[3][0], mat[3][2], mat[3][1]
-	return mat_rt
+	s_x = mathutils.Matrix.Identity(3)
+	s_x[0][0] = -1
+	mat_l = mat.to_3x3()
+	mat_l = s_x*mat_l*s_x
+	mat_l = mat_l.to_4x4()
+	mat_l[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
+	return mat_l
 
 # matrix right to left hand
 def to_left_matrix_b(mat):
 	mat_rt = mathutils.Matrix()
-	mat_rt[0][0:3] = mat[0][0], mat[0][2], mat[0][1]
-	mat_rt[1][0:3] = mat[2][0], mat[2][2], mat[2][1]
-	mat_rt[2][0:3] = mat[1][0], mat[1][2], mat[1][1]
-	mat_rt[3][0:3] = mat[3][0], mat[3][2], mat[3][1]
+	mat_rt[0][0:3] = mat[0][0], -mat[0][1], -mat[0][2]
+	mat_rt[1][0:3] = -mat[1][0], mat[1][1], mat[1][2]
+	mat_rt[2][0:3] = -mat[2][0], mat[2][1], mat[2][2]
+	mat_rt[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
 	return mat_rt
 
 # get index
@@ -86,7 +87,7 @@ def get_to_parent(ix):
 	# test
 	if ix == 0:
 		return o_arma.pose.bones[0].matrix.inverted()
-	mat_to_p = o_arma.pose.bones[ix-1].matrix.inverted()*o_arma.pose.bones[ix].matrix
+	mat_to_p = o_arma.pose.bones[ix].matrix*o_arma.pose.bones[ix-1].matrix.inverted()
 	return mat_to_p.inverted()
 
 # data bone hierarchy
@@ -101,7 +102,7 @@ def data_hierarchy():
 def data_offset():
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
-		mat = mathutils.Matrix.transposed(arma.bones[ix].matrix_local)
+		mat = arma.bones[ix].matrix_local.transposed()
 		if is_left_hand:
 			mat = to_left_matrix(mat)
 		rt_list.append(mat)
@@ -130,16 +131,10 @@ def data_time_p_s_r():
 		scene.frame_set(key.co[0])
 		scene.update
 		for ix in range(0, cnt_bone):
-			'''
-			mat_to_p = mathutils.Matrix.transposed(get_to_parent(ix))
+			mat_to_p = get_to_parent(ix).transposed()
 			mat_to_p = to_left_matrix(mat_to_p)
-			mat_to_p = mathutils.Matrix.transposed(mat_to_p)
+			mat_to_p = mat_to_p.transposed()
 			loc, rot, sca = mat_to_p.decompose()
-			'''
-			loc, rot, sca = get_to_parent(ix).decompose()
-			#if is_left_hand:
-			#	 loc = static_export.to_left_hand_vec3(loc)
-			#'''
 			rot = mathutils.Quaternion((rot.x, rot.y, rot.z, rot.w))
 			pos_list[ix*len_key+ix_key] = loc
 			sca_list[ix*len_key+ix_key] = sca
@@ -255,32 +250,5 @@ def export_m3d_anim():
 
 # main
 export_m3d_anim()
-
-#
-'''
-mat_off0 = arma.bones[0].matrix_local.copy()
-mat_off1 = arma.bones[1].matrix_local.copy()
-mat_sca = mathutils.Matrix.Scale(1, 4)
-mat_loc0 = mathutils.Matrix.Translation((0.0, 0.0, 0.0))
-quat_a = mathutils.Quaternion((0.5, -0.5, -0.5, -0.5))
-mat_rot0 = quat_a.to_matrix().to_4x4()
-mat_out0 = mat_loc0 * mat_rot0 * mat_sca
-mat_loc1 = mathutils.Matrix.Translation((-1.3456e-07, -0.99999, -0.00452477))
-quat_a = mathutils.Quaternion((0.999997, 0.00226239, -1.53629e-08, -6.7315e-08))
-mat_rot1 = quat_a.to_matrix().to_4x4()
-mat_out1 = mat_loc1 * mat_rot1 * mat_sca
-mat_off0_t = mathutils.Matrix.transposed(mat_off0)
-mat_off1_t = mathutils.Matrix.transposed(mat_off1)
-mat_out0_t = mathutils.Matrix.transposed(mat_out0)
-mat_out1_t = mathutils.Matrix.transposed(mat_out1)
-mat_f1_t = mat_off1_t*mat_out1_t*mat_out0_t
-mat_f1_t_i = mat_out0_t*mat_out1_t*mat_off1_t
-mat_f1 = mat_off1*mat_out1*mat_out0
-mat_f1_i = mat_out0*mat_out1*mat_off1
-#print(mat_f1)
-#print(mat_f1_i)
-print(mat_f1_t)
-print(mat_f1_t_i)
-'''
 
 #
