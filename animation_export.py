@@ -36,12 +36,12 @@ def to_left_matrix(mat):
 
 # matrix right to left hand
 def to_left_matrix_b(mat):
-	mat_rt = mathutils.Matrix()
-	mat_rt[0][0:3] = mat[0][0], -mat[0][1], -mat[0][2]
-	mat_rt[1][0:3] = -mat[1][0], mat[1][1], mat[1][2]
-	mat_rt[2][0:3] = -mat[2][0], mat[2][1], mat[2][2]
-	mat_rt[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
-	return mat_rt
+	mat_l = mathutils.Matrix()
+	mat_l[0][0:3] = mat[0][0], -mat[0][1], -mat[0][2]
+	mat_l[1][0:3] = -mat[1][0], mat[1][1], mat[1][2]
+	mat_l[2][0:3] = -mat[2][0], mat[2][1], mat[2][2]
+	mat_l[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
+	return mat_l
 
 # get index
 def get_index(item, bpy_data):
@@ -87,8 +87,8 @@ def get_to_parent(ix):
 	# test
 	if ix == 0:
 		return o_arma.pose.bones[0].matrix.inverted()
-	mat_to_p = o_arma.pose.bones[ix].matrix*o_arma.pose.bones[ix-1].matrix.inverted()
-	return mat_to_p.inverted()
+	to_child = o_arma.pose.bones[ix].matrix*o_arma.pose.bones[ix-1].matrix.inverted()
+	return to_child.inverted()
 
 # data bone hierarchy
 def data_hierarchy():
@@ -98,11 +98,11 @@ def data_hierarchy():
 	return rt_list
 
 # data offset transformation, mesh to armature
-# assume mesh's orgin is same as armature
 def data_offset():
+	mesh_to_arma = o_arma.matrix_basis*o_mesh.matrix_basis
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
-		mat = arma.bones[ix].matrix_local.transposed()
+		mat = (arma.bones[ix].matrix_local*mesh_to_arma).transposed()
 		if is_left_hand:
 			mat = to_left_matrix(mat)
 		rt_list.append(mat)
@@ -250,5 +250,3 @@ def export_m3d_anim():
 
 # main
 export_m3d_anim()
-
-#
