@@ -85,10 +85,10 @@ def number_to_str(list_in):
 # get to parent matrix
 def get_to_parent(ix):
 	# test
-	if ix == 0:
-		return o_arma.pose.bones[0].matrix.inverted()
-	to_child = o_arma.pose.bones[ix].matrix*o_arma.pose.bones[ix-1].matrix.inverted()
-	return to_child.inverted()
+	if o_arma.pose.bones[ix].parent == None:
+		return o_arma.pose.bones[ix].matrix
+	to_parent = o_arma.pose.bones[ix].parent.matrix.inverted()*o_arma.pose.bones[ix].matrix
+	return to_parent
 
 # data bone hierarchy
 def data_hierarchy():
@@ -99,12 +99,13 @@ def data_hierarchy():
 
 # data offset transformation, mesh to armature
 def data_offset():
-	mesh_to_arma = o_arma.matrix_basis*o_mesh.matrix_basis
+	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
-		mat = (arma.bones[ix].matrix_local*mesh_to_arma).transposed()
+		mat = (mesh_to_arma*arma.bones[ix].matrix_local).transposed()
 		if is_left_hand:
 			mat = to_left_matrix(mat)
+		mat = mat.inverted()
 		rt_list.append(mat)
 	return rt_list
 
