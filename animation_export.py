@@ -115,20 +115,29 @@ def data_time_p_s_r():
 	pos_list = []
 	sca_list = []
 	rot_list = []
-	#
+	# find completed framekeys in fcurves
+	fcurve_keys_max = 0
+	fcurve_ix = 0
+	for ix_fcu in range(0, len(action.fcurves)):
+		len_fcurve_keys = len(action.fcurves[ix_fcu].keyframe_points)
+		if len_fcurve_keys > fcurve_keys_max:
+			fcurve_keys_max = len_fcurve_keys
+			fcurve_ix = ix_fcu
+	print("keyframes:\t"+str(fcurve_keys_max))
+	# fps -> second
 	frame_time = 1/scene.render.fps
 	cnt_bone = 0
 	# time
 	for bone in o_arma.pose.bones:
-		for key in action.fcurves[0].keyframe_points:
+		for key in action.fcurves[fcurve_ix].keyframe_points:
 			time_list.append(key.co[0]*frame_time)
 			pos_list.append(0)
 			sca_list.append(0)
 			rot_list.append(0)
 		cnt_bone += 1
 	# position scale rotation
-	for ix_key, key in enumerate(action.fcurves[0].keyframe_points):
-		len_key = len(action.fcurves[0].keyframe_points)
+	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
+		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
 		scene.frame_set(key.co[0])
 		scene.update
 		for ix in range(0, cnt_bone):
@@ -205,6 +214,9 @@ def package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b
 
 # export m3d anim format parts
 def export_m3d_anim():
+	print("-------------------")
+	print("Export information:")
+	print("-------------------")
 	# get data and format them
 	d_offset = data_offset()
 	d_hierarchy = data_hierarchy()
@@ -243,11 +255,9 @@ def export_m3d_anim():
 	static_export.write_text(export, txt_time_p_s_r)
 	export = export_dir+"export_vertex_a.txt"
 	static_export.write_text(export, txt_vertex)
-	print("-------------------")
-	print("Export information:")
-	print("-------------------")
 	print("left hand:\t"+str(is_left_hand))
 	print("export dir:\t"+export_dir)
+	print("bones:\t\t"+str(len(arma.bones)))
 
 # main
 export_m3d_anim()
