@@ -22,3 +22,9 @@ How to Use:
 -----------
 * Run the script in Blender Text Editor, and open Toggle System Console.
 * Before run script, you may do some setting in the source code.
+
+Known Issues:
+-------------
+* Tangent data's algorithm sometimes will div by zero, I do not know why.
+* Blender FCurve I do not understand the mechanism, in order to find all framekeys,
+  simply find max framekeys in the specific FCurve.
