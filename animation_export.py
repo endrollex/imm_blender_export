@@ -24,22 +24,18 @@ mesh = o_mesh.data
 scene = bpy.data.scenes[0]
 action = bpy.data.actions[0]
 
+# global var
+fcurve_keys_max = 0
+
 # matrix right to left hand
 def to_left_matrix(mat):
+	if not is_left_hand:
+		return mat
 	s_x = mathutils.Matrix.Identity(3)
 	s_x[0][0] = -1
 	mat_l = mat.to_3x3()
 	mat_l = s_x*mat_l*s_x
 	mat_l = mat_l.to_4x4()
-	mat_l[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
-	return mat_l
-
-# matrix right to left hand
-def to_left_matrix_b(mat):
-	mat_l = mathutils.Matrix()
-	mat_l[0][0:3] = mat[0][0], -mat[0][1], -mat[0][2]
-	mat_l[1][0:3] = -mat[1][0], mat[1][1], mat[1][2]
-	mat_l[2][0:3] = -mat[2][0], mat[2][1], mat[2][2]
 	mat_l[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
 	return mat_l
 
@@ -103,8 +99,7 @@ def data_offset():
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
 		mat = (mesh_to_arma*arma.bones[ix].matrix_local).transposed()
-		if is_left_hand:
-			mat = to_left_matrix(mat)
+		mat = to_left_matrix(mat)
 		mat = mat.inverted()
 		rt_list.append(mat)
 	return rt_list
@@ -116,6 +111,7 @@ def data_time_p_s_r():
 	sca_list = []
 	rot_list = []
 	# find completed framekeys in fcurves
+	global fcurve_keys_max
 	fcurve_keys_max = 0
 	fcurve_ix = 0
 	for ix_fcu in range(0, len(action.fcurves)):
@@ -123,7 +119,6 @@ def data_time_p_s_r():
 		if len_fcurve_keys > fcurve_keys_max:
 			fcurve_keys_max = len_fcurve_keys
 			fcurve_ix = ix_fcu
-	print("keyframes:\t"+str(fcurve_keys_max))
 	# fps -> second
 	frame_time = 1/scene.render.fps
 	cnt_bone = 0
@@ -131,9 +126,9 @@ def data_time_p_s_r():
 	for bone in o_arma.pose.bones:
 		for key in action.fcurves[fcurve_ix].keyframe_points:
 			time_list.append(key.co[0]*frame_time)
-			pos_list.append(0)
-			sca_list.append(0)
-			rot_list.append(0)
+			pos_list.append(None)
+			sca_list.append(None)
+			rot_list.append(None)
 		cnt_bone += 1
 	# position scale rotation
 	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
@@ -151,6 +146,16 @@ def data_time_p_s_r():
 			rot_list[ix*len_key+ix_key] = rot
 	return [time_list, pos_list, sca_list, rot_list]
 
+# reassign weight and index
+def reassign_weight(vert_group_in):
+	#
+	re_group = [[], []]
+	for group in vert_group_in:
+		re_group[0].append(group.group)
+		re_group[1].append(group.weight)
+	if len(re_group[0]) > 4:
+			print(re_group)
+
 # data blender indices and weights
 def data_b_index_weight():
 	b_index = []
@@ -160,6 +165,8 @@ def data_b_index_weight():
 		b_weight.append([])
 		cnt_less4 = 4-len(vert.groups)
 		cnt_group = 0
+		# only use 4 bone per vertex
+		reassign_weight(vert.groups)
 		for group in vert.groups:
 			if cnt_group > 3:
 				break
@@ -195,6 +202,21 @@ def package_offset(list_in):
 # package time position scale rotation
 def package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot):
 	rt_list = []
+	global fcurve_keys_max	
+	if fcurve_keys_max == 0:
+		print("error: keyframes no date")
+	for ix in range(0, len(txt_time)):
+		if ix%fcurve_keys_max == 0:
+			rt_list.append("Bone"+str(int(ix/fcurve_keys_max))+" #Keyframes: "+str(fcurve_keys_max))
+			rt_list.append("{")
+		rt_list.append("Time: "+txt_time[ix]+" Pos: "+txt_pos[ix]+" Scale: "+txt_sca[ix]+" Quat: "+txt_rot[ix])
+		if (ix-fcurve_keys_max+1)%fcurve_keys_max == 0:
+			rt_list.append("}")
+	return rt_list	
+
+# package time position scale rotation
+def package_time_p_s_r_2(txt_time, txt_pos, txt_sca, txt_rot):
+	rt_list = []
 	for ix in range(0, len(txt_time)):
 		rt_list.append("Time: "+txt_time[ix]+" Pos: "+txt_pos[ix]+" Scale: "+txt_sca[ix]+" Quat: "+txt_rot[ix])
 	return rt_list	
@@ -214,9 +236,6 @@ def package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b
 
 # export m3d anim format parts
 def export_m3d_anim():
-	print("-------------------")
-	print("Export information:")
-	print("-------------------")
 	# get data and format them
 	d_offset = data_offset()
 	d_hierarchy = data_hierarchy()
@@ -255,9 +274,15 @@ def export_m3d_anim():
 	static_export.write_text(export, txt_time_p_s_r)
 	export = export_dir+"export_vertex_a.txt"
 	static_export.write_text(export, txt_vertex)
+	# print
+	global fcurve_keys_max
+	print("-------------------")
+	print("Export information:")
+	print("-------------------")
 	print("left hand:\t"+str(is_left_hand))
 	print("export dir:\t"+export_dir)
 	print("bones:\t\t"+str(len(arma.bones)))
+	print("keyframes:\t"+str(fcurve_keys_max))
 
 # main
 export_m3d_anim()

@@ -3,7 +3,6 @@
 # export static data to text
 #
 import os
-import copy
 import bpy
 import math
 import mathutils
@@ -48,11 +47,15 @@ def write_text(path, data_list):
 # right hand to left hand vector3
 # mirrored along the YZ plane in left hand
 def to_left_hand_vec3(vec3_in):
+	if not is_left_hand:
+		return mathutils.Vector((vec3_in.x, vec3_in.y, vec3_in.z))
 	return mathutils.Vector((-vec3_in.x, vec3_in.y, vec3_in.z))
 
 # if left hand, flip uv along X
 def uv_flip_x(vec2_in):
-	return mathutils.Vector((vec2_in.x, 1-vec2_in.y)) if is_left_hand else vec2_in
+	if is_left_hand:
+		return mathutils.Vector((vec2_in.x, 1-vec2_in.y))
+	return mathutils.Vector((vec2_in.x, vec2_in.y))
 
 # coordinate to string
 def coordinate_to_str(list_in):
@@ -90,6 +93,8 @@ def data_uv_and_face():
 			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2], t.vertices[3]])
 		else:
 			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2]])
+		if len(t.vertices) > 4:
+			print("error: one tessface has more than 4 vertices")
 	# store uv according to vertex of tessface
 	uv_data = mesh.tessface_uv_textures[0].data
 	uv_list = []
@@ -101,11 +106,11 @@ def data_uv_and_face():
 	uv_temp = ["", "", "", ""]
 	for ix in range(0, len(uv_data)):
 		v = len(uv_data[ix].uv)
-		uv_temp[0] = copy.deepcopy(uv_flip_x(uv_data[ix].uv1))
-		uv_temp[1] = copy.deepcopy(uv_flip_x(uv_data[ix].uv2))
-		uv_temp[2] = copy.deepcopy(uv_flip_x(uv_data[ix].uv3))
+		uv_temp[0] = uv_flip_x(uv_data[ix].uv1)
+		uv_temp[1] = uv_flip_x(uv_data[ix].uv2)
+		uv_temp[2] = uv_flip_x(uv_data[ix].uv3)
 		if v == 4:
-			uv_temp[3] = copy.deepcopy(uv_flip_x(uv_data[ix].uv4))
+			uv_temp[3] = uv_flip_x(uv_data[ix].uv4)
 		for iv in range(0, v):
 			if uv_temp[iv] not in uv_list[tessface_list[ix][iv]]:
 				uv_list[tessface_list[ix][iv]].append(uv_temp[iv])
@@ -119,7 +124,7 @@ def data_uv_and_face():
 					uv_ex_dict[len(uv_list)-1] = tessface_list[ix][iv]
 					tessface_list[ix][iv] = len(uv_list)-1
 				if len(uv_list[tessface_list[ix][iv]]) > 2:
-					return ["one vertex has more than two uv, out of the current solution"]
+					return ["error: one vertex has more than two uv, out of the current solution"]
 			else:
 				if uv_temp[iv] != uv_list[tessface_list[ix][iv]][0]:
 					tessface_list[ix][iv] = uv_ex_dict_inv[tessface_list[ix][iv]]
@@ -225,7 +230,7 @@ def data_triangle(tessface_list):
 def data_position(len_uv, uv_ex_dict):
 	rt_list = []
 	for v in mesh.vertices:
-		rt_list.append(to_left_hand_vec3(v.co) if is_left_hand else v.co)
+		rt_list.append(to_left_hand_vec3(v.co))
 	for ix in range(len_uv-len(uv_ex_dict), len_uv):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
@@ -234,7 +239,7 @@ def data_position(len_uv, uv_ex_dict):
 def data_normal(len_uv, uv_ex_dict):
 	rt_list = []
 	for v in mesh.vertices:
-		rt_list.append(to_left_hand_vec3(v.normal) if is_left_hand else v.normal)
+		rt_list.append(to_left_hand_vec3(v.normal))
 	for ix in range(len_uv-len(uv_ex_dict), len_uv):
 		rt_list.append(rt_list[uv_ex_dict[ix]])
 	return rt_list
@@ -250,7 +255,7 @@ def package_vertex(len_uv, txt_position, txt_normal, txt_tangent, txt_uv):
 		rt_list.append(temp)
 	return rt_list
 
-# export m3d format parts
+# export m3d static format parts
 def export_m3d():
 	d_uv_and_face = data_uv_and_face()
 	len_uv = len(d_uv_and_face[0])
