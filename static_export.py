@@ -113,23 +113,22 @@ def data_uv_and_face():
 			if uv_temp[iv] not in uv_list[tessface_list[ix][iv]]:
 				uv_list[tessface_list[ix][iv]].append(uv_temp[iv])
 				len_uv_this = len(uv_list[tessface_list[ix][iv]])
-				if len_uv_this == 2:
+				#
+				if len_uv_this > 1:
 					uv_list.append([uv_temp[iv]])
 					uv_last_one = len(uv_list)-1
+				if len_uv_this == 2:
 					# uv_ex_dict_inv: {vertex index: [exceed uv of this vertex]}
 					uv_ex_dict_inv.fromkeys([tessface_list[ix][iv]])
 					uv_ex_dict_inv[tessface_list[ix][iv]] = [uv_last_one]
+				if len_uv_this > 2:
+					uv_ex_dict_inv[tessface_list[ix][iv]].append(uv_last_one)
+				if len_uv_this > 1:
 					# uv_ex_dict: {uv index which exceed vertex count: vertex index}
 					uv_ex_dict.fromkeys([uv_last_one])
 					uv_ex_dict[uv_last_one] = tessface_list[ix][iv]
 					tessface_list[ix][iv] = uv_last_one
-				if len_uv_this > 2:
-					uv_list.append([uv_temp[iv]])
-					uv_last_one = len(uv_list)-1
-					uv_ex_dict_inv[tessface_list[ix][iv]].append(uv_last_one)
-					uv_ex_dict.fromkeys([uv_last_one])
-					uv_ex_dict[uv_last_one] = tessface_list[ix][iv]
-					tessface_list[ix][iv] = uv_last_one
+				#
 			else:
 				if uv_temp[iv] != uv_list[tessface_list[ix][iv]][0]:
 					for ix_uv in range(1, len(uv_list[tessface_list[ix][iv]])):
