@@ -3,7 +3,6 @@
 # export animation data to text
 #
 import os
-import copy
 import bpy
 import mathutils
 import sys
@@ -249,19 +248,19 @@ def export_m3d_anim():
 	txt_rot = static_export.format_vector(d_time_p_s_r[3])
 	txt_time_p_s_r = package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot)
 	# arrange vertex accroding uv
-	d_uv_and_face = static_export.data_uv_and_face()
-	len_uv = len(d_uv_and_face[0])
-	d_triangle = static_export.data_triangle(d_uv_and_face[2])
-	d_position = static_export.data_position(len_uv, d_uv_and_face[1])
-	d_normal = static_export.data_normal(len_uv, d_uv_and_face[1])
-	d_tangent = static_export.data_tangent(len_uv, d_position, d_normal, d_uv_and_face[0], d_triangle)
-	txt_uv = static_export.format_vector(d_uv_and_face[0])
-	txt_triangle = static_export.format_triangle(d_triangle)
+	d_uv, d_uv_ex_dict, d_tessface = static_export.data_uv_and_face()
+	len_uv = len(d_uv)
+	d_triangle = static_export.data_triangle(d_tessface)
+	d_position = static_export.data_position(len_uv, d_uv_ex_dict)
+	d_normal = static_export.data_normal(len_uv, d_uv_ex_dict)
+	d_tangent = static_export.data_tangent(len_uv, d_position, d_normal, d_uv, d_triangle)
+	txt_uv = static_export.format_vector(d_uv)
+	#txt_triangle = static_export.format_triangle(d_triangle)
 	txt_position = static_export.format_vector(d_position)
 	txt_normal = static_export.format_vector(d_normal)
 	txt_tangent = static_export.format_vector(d_tangent)
 	# bone weight and index
-	d_b_index_weight = data_b_index_weight_add(len_uv, d_uv_and_face[1], d_b_index_weight)
+	d_b_index_weight = data_b_index_weight_add(len_uv, d_uv_ex_dict, d_b_index_weight)
 	txt_b_index = format_index(d_b_index_weight[0])
 	txt_b_weight = static_export.format_vector(d_b_index_weight[1])
 	txt_vertex = package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight)

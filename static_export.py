@@ -77,7 +77,7 @@ def format_triangle(list_in):
 	for t in list_in:
 		rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
 	return rt_list
-
+	
 # get uv list and tessface list
 # Blender's uv is per tessface
 # we need uv per vertex
@@ -93,8 +93,6 @@ def data_uv_and_face():
 			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2], t.vertices[3]])
 		else:
 			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2]])
-		if len(t.vertices) > 4:
-			print("error: one tessface has more than 4 vertices")
 	# store uv according to vertex of tessface
 	uv_data = mesh.tessface_uv_textures[0].data
 	uv_list = []
@@ -103,7 +101,7 @@ def data_uv_and_face():
 	vertex_count = len(mesh.vertices)
 	for ix in range(0, vertex_count):
 		uv_list.append([])
-	uv_temp = ["", "", "", ""]
+	uv_temp = [None, None, None, None]
 	for ix in range(0, len(uv_data)):
 		v = len(uv_data[ix].uv)
 		uv_temp[0] = uv_flip_x(uv_data[ix].uv1)
@@ -114,44 +112,36 @@ def data_uv_and_face():
 		for iv in range(0, v):
 			if uv_temp[iv] not in uv_list[tessface_list[ix][iv]]:
 				uv_list[tessface_list[ix][iv]].append(uv_temp[iv])
-				if len(uv_list[tessface_list[ix][iv]]) > 1:
+				len_uv_this = len(uv_list[tessface_list[ix][iv]])
+				if len_uv_this == 2:
 					uv_list.append([uv_temp[iv]])
-					# uv_ex_dict_inv: which vertex index is mapping second uv
+					uv_last_one = len(uv_list)-1
+					# uv_ex_dict_inv: {vertex index: [exceed uv of this vertex]}
 					uv_ex_dict_inv.fromkeys([tessface_list[ix][iv]])
-					uv_ex_dict_inv[tessface_list[ix][iv]] = len(uv_list)-1					
-					# uv_ex_dict: uv index (exceed vertex count) is mapping vertex index
-					uv_ex_dict.fromkeys([len(uv_list)-1])
-					uv_ex_dict[len(uv_list)-1] = tessface_list[ix][iv]
-					tessface_list[ix][iv] = len(uv_list)-1
-				if len(uv_list[tessface_list[ix][iv]]) > 2:
-					return ["error: one vertex has more than two uv, out of the current solution"]
+					uv_ex_dict_inv[tessface_list[ix][iv]] = [uv_last_one]
+					# uv_ex_dict: {uv index which exceed vertex count: vertex index}
+					uv_ex_dict.fromkeys([uv_last_one])
+					uv_ex_dict[uv_last_one] = tessface_list[ix][iv]
+					tessface_list[ix][iv] = uv_last_one
+				if len_uv_this > 2:
+					uv_list.append([uv_temp[iv]])
+					uv_last_one = len(uv_list)-1
+					uv_ex_dict_inv[tessface_list[ix][iv]].append(uv_last_one)
+					uv_ex_dict.fromkeys([uv_last_one])
+					uv_ex_dict[uv_last_one] = tessface_list[ix][iv]
+					tessface_list[ix][iv] = uv_last_one
 			else:
 				if uv_temp[iv] != uv_list[tessface_list[ix][iv]][0]:
-					tessface_list[ix][iv] = uv_ex_dict_inv[tessface_list[ix][iv]]
-	# build uv list
+					for ix_uv in range(1, len(uv_list[tessface_list[ix][iv]])):
+						if uv_temp[iv] == uv_list[tessface_list[ix][iv]][ix_uv]:
+							tessface_list[ix][iv] = uv_ex_dict_inv[tessface_list[ix][iv]][ix_uv-1]
+							break
+	# rebuild uv list
 	temp = uv_list
 	uv_list = []
 	for t in temp:
 		uv_list.append(t[0])
 	return [uv_list, uv_ex_dict, tessface_list]
-
-# polygons tangent
-# it can not use, just for test
-def data_tangent_p(len_uv, uv_ex_dict):
-	rt_list = []
-	for ix in range(0, len_uv):
-		rt_list.append(mathutils.Vector((0.0, 0.0, 0.0, 1.0)))
-	mesh.calc_tangents()
-	for poly in mesh.polygons:
-		for loop_index in range(poly.loop_start, poly.loop_start + poly.loop_total):
-			vi = mesh.loops[loop_index].vertex_index
-			t = to_left_hand_vec3(mesh.loops[loop_index].tangent)
-			b = mesh.loops[loop_index].bitangent_sign
-			rt_list[vi].xyz = t.xyz
-			rt_list[vi].w = b
-	for u in uv_ex_dict:
-		rt_list[u] = rt_list[uv_ex_dict[u]]
-	return rt_list
 
 # tangent list
 # polygons tangent is not corresponding with tessface
@@ -257,13 +247,13 @@ def package_vertex(len_uv, txt_position, txt_normal, txt_tangent, txt_uv):
 
 # export m3d static format parts
 def export_m3d():
-	d_uv_and_face = data_uv_and_face()
-	len_uv = len(d_uv_and_face[0])
-	d_triangle = data_triangle(d_uv_and_face[2])
-	d_position = data_position(len_uv, d_uv_and_face[1])
-	d_normal = data_normal(len_uv, d_uv_and_face[1])
-	d_tangent = data_tangent(len_uv, d_position, d_normal, d_uv_and_face[0], d_triangle)
-	txt_uv = format_vector(d_uv_and_face[0])
+	d_uv, d_uv_ex_dict, d_tessface = data_uv_and_face()
+	len_uv = len(d_uv)
+	d_triangle = data_triangle(d_tessface)
+	d_position = data_position(len_uv, d_uv_ex_dict)
+	d_normal = data_normal(len_uv, d_uv_ex_dict)
+	d_tangent = data_tangent(len_uv, d_position, d_normal, d_uv, d_triangle)
+	txt_uv = format_vector(d_uv)
 	txt_triangle = format_triangle(d_triangle)
 	txt_position = format_vector(d_position)
 	txt_normal = format_vector(d_normal)
@@ -281,6 +271,16 @@ def export_m3d():
 	print("vertices:\t"+str(len_uv))
 	print("triangles:\t"+str(len(txt_triangle)))
 	print("export dir:\t"+export_dir)
+	
+	
+	
+	uv_data = mesh.tessface_uv_textures[0].data
+	c = 0
+	for d in uv_data:
+		c += len(d.uv)
+	print(str(c))
+	
+	
 
 # main
 if prepare_uv():
