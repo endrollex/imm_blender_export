@@ -271,16 +271,6 @@ def export_m3d():
 	print("vertices:\t"+str(len_uv))
 	print("triangles:\t"+str(len(txt_triangle)))
 	print("export dir:\t"+export_dir)
-	
-	
-	
-	uv_data = mesh.tessface_uv_textures[0].data
-	c = 0
-	for d in uv_data:
-		c += len(d.uv)
-	print(str(c))
-	
-	
 
 # main
 if prepare_uv():
