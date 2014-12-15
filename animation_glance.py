@@ -18,9 +18,9 @@ action = None
 print("------------------")
 print("armature and bone:")
 print("------------------")
-ix = 1
+ix = 0
 print("bones:\t\t", arma.bones)
-print("index:\t\t", ix)
+print("ix:\t\t", ix)
 print("bones[ix]:\t", arma.bones[ix])
 print("children:\t", arma.bones[ix].children)
 print("parent:\t\t", arma.bones[ix].parent)
@@ -55,7 +55,7 @@ print("---------------")
 print("scene and pose:")
 print("---------------")
 
-scene.frame_set(10)
+scene.frame_set(1)
 scene.update()
 print("fps:\t\t", scene.render.fps)
 print("frame_current:\t", scene.frame_current)
