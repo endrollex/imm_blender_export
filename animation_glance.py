@@ -22,9 +22,8 @@ ix = 0
 print("bones:\t\t", arma.bones)
 print("ix:\t\t", ix)
 print("bones[ix]:\t", arma.bones[ix])
-print("children:\t", arma.bones[ix].children)
 print("parent:\t\t", arma.bones[ix].parent)
-print("matrix_local:") 
+print("matrix_local:")
 print(arma.bones[ix].matrix_local)
 
 # maximum number of bones per vertex
