@@ -77,7 +77,7 @@ def format_triangle(list_in):
 	for t in list_in:
 		rt_list.append(str(t[0])+" "+str(t[1])+" "+str(t[2]))
 	return rt_list
-	
+
 # get uv list and tessface list
 # Blender's uv is per tessface
 # we need uv per vertex
@@ -114,10 +114,12 @@ def data_uv_and_face():
 				uv_list[tessface_list[ix][iv]].append(uv_temp[iv])
 				len_uv_this = len(uv_list[tessface_list[ix][iv]])
 				#
+				uv_last_one = -1
 				if len_uv_this > 1:
 					uv_list.append([uv_temp[iv]])
 					uv_last_one = len(uv_list)-1
 				if len_uv_this == 2:
+					# inial uv_ex_dict_inv
 					# uv_ex_dict_inv: {vertex index: [exceed uv of this vertex]}
 					uv_ex_dict_inv.fromkeys([tessface_list[ix][iv]])
 					uv_ex_dict_inv[tessface_list[ix][iv]] = [uv_last_one]
@@ -143,8 +145,8 @@ def data_uv_and_face():
 	return [uv_list, uv_ex_dict, tessface_list]
 
 # tangent list
-# polygons tangent is not corresponding with tessface
-# it is needed to compute per-vertex tangent spaces for an arbitrary triangle mesh
+# Blender's polygons tangent is not corresponding with tessface
+# it is needed to compute per-vertex tangent
 # Algorithm from Mathematics for 3D Game Programming and Computer Graphics, 3rd ed. Listing 7.1
 # test sometimes will div by zero, i do not know why
 def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):

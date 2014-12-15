@@ -147,13 +147,24 @@ def data_time_p_s_r():
 
 # reassign weight and index
 def reassign_weight(vert_group_in):
-	#
-	re_group = [[], []]
+	re_list = []
 	for group in vert_group_in:
-		re_group[0].append(group.group)
-		re_group[1].append(group.weight)
-	if len(re_group[0]) > 4:
-			print(re_group)
+		re_list.append([group.group, group.weight])
+	re_list = sorted(re_list, key=lambda student: student[1], reverse=True)
+	len_list = len(re_list)
+	if len_list > 4:
+		re_list = re_list[0:4]
+	sum_weight = 0.0
+	for re in re_list:
+		sum_weight += re[1]
+	sum_weight_diff = 1.0-sum_weight
+	if sum_weight_diff > 0.02:
+		for re in re_list:
+			re[1] += (re[1]/sum_weight)*sum_weight_diff
+	if len_list < 4:
+		for ix in range(0, 4-len_list):
+			re_list.append([0, 0.0])
+	return re_list
 
 # data blender indices and weights
 def data_b_index_weight():
@@ -162,19 +173,11 @@ def data_b_index_weight():
 	for vert in mesh.vertices:
 		b_index.append([])
 		b_weight.append([])
-		cnt_less4 = 4-len(vert.groups)
-		cnt_group = 0
 		# only use 4 bone per vertex
-		reassign_weight(vert.groups)
-		for group in vert.groups:
-			if cnt_group > 3:
-				break
-			b_index[-1].append(group.group)
-			b_weight[-1].append(group.weight)
-			cnt_group += 1
-		for ix in range(0, cnt_less4):
-			b_index[-1].append(0)
-			b_weight[-1].append(0.0)
+		re_group = reassign_weight(vert.groups)
+		for group in re_group:
+			b_index[-1].append(group[0])
+			b_weight[-1].append(group[1])
 	return [b_index, b_weight]
 
 # data blender indices and weights add according uv
