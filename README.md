@@ -1,11 +1,14 @@
 imm_blender_export
 ==================
 Python  
-immature Blender export
+immature Blender export  
+.m3d file format
 
 Introduction:
 -------------
 * Export Blender model data for a game engine.
+* The .m3d file format is a custom file format to store meshes,
+  see (Introduction to 3D Game Programming with DirectX 11 by Frank Luna).
 
 Files Explanation:
 ------------------
