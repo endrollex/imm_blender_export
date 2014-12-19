@@ -2,6 +2,9 @@
 # static_export.py
 # export static data to text
 #
+# Copyright 2014 Huang Yiting (http://endrollex.com)
+# imm_blender_export is distributed under the terms of the GNU General Public License
+#
 import os
 import bpy
 import math
@@ -32,6 +35,7 @@ def prepare_uv():
 	try:
 		mesh.tessface_uv_textures[0].data
 	except:
+		print("imm export error, uv is not prepared")
 		return False
 	return True
 
@@ -182,7 +186,7 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 		test = s1 * t2 - s2 * t1
 		if test == 0:
 			None
-			#print("error: div by zero, uv may be wrong")
+			#print("imm export error: div by zero, uv may be wrong")
 		else:
 			r = 1.0 / test
 		sdir = mathutils.Vector(((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r))
@@ -239,15 +243,15 @@ def data_normal(len_uv, uv_ex_dict):
 def package_vertex(len_uv, txt_position, txt_normal, txt_tangent, txt_uv):
 	rt_list = []
 	for ix in range(0, len_uv):
-		temp = "Position: "+txt_position[ix]+"\n"
-		temp += "Tangent: "+txt_tangent[ix][0:-2]+"\n"
-		temp += "Normal: "+txt_normal[ix]+"\n"
-		temp += "TexCoord: "+txt_uv[ix]+"\n"
+		temp = "P: "+txt_position[ix]+"\n"
+		temp += "T: "+txt_tangent[ix][0:-2]+"\n"
+		temp += "N: "+txt_normal[ix]+"\n"
+		temp += "T: "+txt_uv[ix]+"\n"
 		rt_list.append(temp)
 	return rt_list
 
-# export m3d static format parts
-def export_m3d():
+# package vertex triangle
+def package_vertex_triangle():
 	d_uv, d_uv_ex_dict, d_tessface = data_uv_and_face()
 	len_uv = len(d_uv)
 	d_triangle = data_triangle(d_tessface)
@@ -255,26 +259,78 @@ def export_m3d():
 	d_normal = data_normal(len_uv, d_uv_ex_dict)
 	d_tangent = data_tangent(len_uv, d_position, d_normal, d_uv, d_triangle)
 	txt_uv = format_vector(d_uv)
-	txt_triangle = format_triangle(d_triangle)
 	txt_position = format_vector(d_position)
 	txt_normal = format_vector(d_normal)
 	txt_tangent = format_vector(d_tangent)
 	txt_vertex = package_vertex(len_uv, txt_position, txt_normal, txt_tangent, txt_uv)
-	# write
-	export = export_dir+"export_vertex.txt"
-	write_text(export, txt_vertex)
-	export = export_dir+"export_triangle.txt"
-	write_text(export, txt_triangle)
-	print("-------------------")
-	print("Export information:")
-	print("-------------------")
+	txt_triangle = format_triangle(d_triangle)
+	return [txt_vertex, txt_triangle, len_uv]
+
+# package m3d static
+def package_m3d(is_anim = False, package_txt = ["", "", "", "", ""]):
+	# mesh
+	txt_vertex, txt_triangle, len_uv = package_txt[0:3]
+	len_bones = 0
+	len_anim_clips = 1
+	if (is_anim):
+		len_bones, len_anim_clips = package_txt[3:5]
+	len_triangle = len(txt_triangle)
+	# m3d file header
+	txt_m3d = []
+	txt_m3d.append("---------------------------M3D_File_Header-")
+	txt_m3d.append("Materials 1")
+	txt_m3d.append("Vertices "+str(len_uv))
+	txt_m3d.append("Triangles "+str(len_triangle))
+	txt_m3d.append("Bones "+str(len_bones))
+	txt_m3d.append("AnimationClips "+str(len_anim_clips))
+	txt_m3d.append("")
+	# materials
+	d_diffuse = mesh.materials[0].diffuse_color*mesh.materials[0].diffuse_intensity
+	d_specular = mesh.materials[0].specular_color*mesh.materials[0].specular_intensity
+	# mat_hard from export_fbx.py
+	d_mat_hard = ((float(mesh.materials[0].specular_hardness) - 1.0) / 510.0) * 128.0
+	d_reflect = mesh.materials[0].mirror_color*mesh.materials[0].raytrace_mirror.reflect_factor
+	# materials txt
+	txt_m3d.append("----------------------------------Materials-")
+	txt_m3d.append("Ambient:"+(" "+str(mesh.materials[0].ambient))*3)
+	txt_m3d.append("Diffuse: "+str(coordinate_to_str(d_diffuse)))
+	txt_m3d.append("Specular: "+str(coordinate_to_str(d_specular)))
+	txt_m3d.append("SpecPower: "+str(round_sig(d_mat_hard)))
+	txt_m3d.append("Reflectivity: "+str(coordinate_to_str(d_reflect)))
+	txt_m3d.append("AlphaClip: 0")
+	txt_m3d.append("Effect: Normal")
+	txt_m3d.append("DiffuseMap: monkey_diffuse.dds")
+	txt_m3d.append("NormalMap: monkey_normal.dds")
+	txt_m3d.append("")
+	# subset table
+	txt_m3d.append("-------------------------------Subset_Table-")
+	temp_str = "SubsetID: 0 "
+	temp_str += "VertexStart: 0 "
+	temp_str += "VertexCount: "+str(len_uv)+" "
+	temp_str += "FaceStart: 0 "
+	temp_str += "FaceCount: "+str(len_triangle)
+	txt_m3d.append(temp_str)
+	txt_m3d.append("")
+	# vertices
+	txt_m3d.append("-----------------------------------Vertices-")
+	txt_m3d += txt_vertex
+	# triangles
+	txt_m3d.append("----------------------------------Triangles-")
+	txt_m3d += txt_triangle
+	return txt_m3d
+
+# export m3d static format
+def export_m3d():
+	txt_m3d = package_m3d(False, package_vertex_triangle())
+	export = export_dir+"export_static.txt"
+	write_text(export, txt_m3d)
+	#
+	print("--------------------")
+	print("M3D Export (Static):")
+	print("--------------------")
 	print("left hand:\t"+str(is_left_hand))
-	print("vertices:\t"+str(len_uv))
-	print("triangles:\t"+str(len(txt_triangle)))
 	print("export dir:\t"+export_dir)
 
 # main
 if prepare_uv():
 	export_m3d()
-else:
-	print("export error, uv is not prepared")

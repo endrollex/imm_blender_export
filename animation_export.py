@@ -2,6 +2,9 @@
 # animation_export.py
 # export animation data to text
 #
+# Copyright 2014 Huang Yiting (http://endrollex.com)
+# imm_blender_export is distributed under the terms of the GNU General Public License
+#
 import os
 import bpy
 import mathutils
@@ -191,53 +194,46 @@ def data_b_index_weight_add(len_uv, uv_ex_dict, d_b_index_weight):
 def package_hierarchy(list_in):
 	rt_list = []
 	for index in list_in:
-		rt_list.append("ParentIndexOfBone"+str(index[0])+": "+str(index[1]))
+		rt_list.append("P"+str(index[0])+": "+str(index[1]))
 	return rt_list
 
 # package offset
 def package_offset(list_in):
 	rt_list = []
 	for ix in range(0, len(list_in)):
-		rt_list.append("BoneOffset"+str(ix)+" "+list_in[ix])
+		rt_list.append("B"+str(ix)+": "+list_in[ix])
 	return rt_list
 
 # package time position scale rotation
 def package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot):
 	rt_list = []
-	global fcurve_keys_max	
+	global fcurve_keys_max
 	if fcurve_keys_max == 0:
-		print("error: keyframes no date")
+		print("imm export error: keyframes no date")
 	for ix in range(0, len(txt_time)):
 		if ix%fcurve_keys_max == 0:
-			rt_list.append("Bone"+str(int(ix/fcurve_keys_max))+" #Keyframes: "+str(fcurve_keys_max))
+			rt_list.append("B"+str(int(ix/fcurve_keys_max))+" #K: "+str(fcurve_keys_max))
 			rt_list.append("{")
 		rt_list.append("Time: "+txt_time[ix]+" Pos: "+txt_pos[ix]+" Scale: "+txt_sca[ix]+" Quat: "+txt_rot[ix])
 		if (ix-fcurve_keys_max+1)%fcurve_keys_max == 0:
 			rt_list.append("}")
-	return rt_list	
-
-# package time position scale rotation
-def package_time_p_s_r_2(txt_time, txt_pos, txt_sca, txt_rot):
-	rt_list = []
-	for ix in range(0, len(txt_time)):
-		rt_list.append("Time: "+txt_time[ix]+" Pos: "+txt_pos[ix]+" Scale: "+txt_sca[ix]+" Quat: "+txt_rot[ix])
-	return rt_list	
+	return rt_list
 
 # package vertex with animation data
-def package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight):
+def package_vertex_anim(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight):
 	rt_list = []
 	for ix in range(0, len_uv):
-		temp = "Position: "+txt_position[ix]+"\n"
-		temp += "Tangent: "+txt_tangent[ix][0:-2]+"\n"
-		temp += "Normal: "+txt_normal[ix]+"\n"
-		temp += "TexCoord: "+txt_uv[ix]+"\n"
-		temp += "BlendWeights: "+txt_b_weight[ix]+"\n"
-		temp += "BlendIndices: "+txt_b_index[ix]+"\n"
+		temp = "P: "+txt_position[ix]+"\n"
+		temp += "T: "+txt_tangent[ix][0:-2]+"\n"
+		temp += "N: "+txt_normal[ix]+"\n"
+		temp += "T: "+txt_uv[ix]+"\n"
+		temp += "W: "+txt_b_weight[ix]+"\n"
+		temp += "I: "+txt_b_index[ix]+"\n"
 		rt_list.append(temp)
 	return rt_list
 
-# export m3d anim format parts
-def export_m3d_anim():
+# package vertex triangle anim
+def package_vertex_triangle_anim():
 	# get data and format them
 	d_offset = data_offset()
 	d_hierarchy = data_hierarchy()
@@ -258,7 +254,8 @@ def export_m3d_anim():
 	d_normal = static_export.data_normal(len_uv, d_uv_ex_dict)
 	d_tangent = static_export.data_tangent(len_uv, d_position, d_normal, d_uv, d_triangle)
 	txt_uv = static_export.format_vector(d_uv)
-	#txt_triangle = static_export.format_triangle(d_triangle)
+	#
+	txt_triangle = static_export.format_triangle(d_triangle)
 	txt_position = static_export.format_vector(d_position)
 	txt_normal = static_export.format_vector(d_normal)
 	txt_tangent = static_export.format_vector(d_tangent)
@@ -266,25 +263,41 @@ def export_m3d_anim():
 	d_b_index_weight = data_b_index_weight_add(len_uv, d_uv_ex_dict, d_b_index_weight)
 	txt_b_index = format_index(d_b_index_weight[0])
 	txt_b_weight = static_export.format_vector(d_b_index_weight[1])
-	txt_vertex = package_vertex2(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight)
-	# export text
-	export = export_dir+"export_offset.txt"
-	static_export.write_text(export, txt_offset)
-	export = export_dir+"export_hierarchy.txt"
-	static_export.write_text(export, txt_hierarchy)
-	export = export_dir+"export_time_p_s_r.txt"
-	static_export.write_text(export, txt_time_p_s_r)
-	export = export_dir+"export_vertex_a.txt"
-	static_export.write_text(export, txt_vertex)
+	txt_vertex = package_vertex_anim(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight)
+	return [txt_vertex, txt_triangle, len_uv, txt_offset, txt_hierarchy, txt_time_p_s_r]
+
+# package offset hierarchy time_p_s_r
+def package_offset_hierarchy(offset, hierarchy, time_p_s_r):
+	txt_anim = []
+	txt_anim.append("--------------------------------BoneOffsets-")
+	txt_anim += offset
+	txt_anim.append("")
+	txt_anim.append("------------------------------BoneHierarchy-")
+	txt_anim += hierarchy
+	txt_anim.append("")
+	txt_anim.append("-----------------------------AnimationClips-")
+	txt_anim.append("AnimationClip Take1")
+	txt_anim.append("{")
+	txt_anim += time_p_s_r
+	txt_anim.append("}")
+	return txt_anim
+
+# export m3d anim format parts
+def export_m3d_anim():
+	txt_vertex, txt_triangle, len_uv, txt_offset, txt_hierarchy, txt_time_p_s_r = package_vertex_triangle_anim()
+	len_bones = len(arma.bones)
+	len_anim_clips =  1
+	txt_m3d = static_export.package_m3d(True, [txt_vertex, txt_triangle, len_uv, len_bones, len_anim_clips])
+	txt_m3d += package_offset_hierarchy(txt_offset, txt_hierarchy, txt_time_p_s_r)
+	export = export_dir+"export_anim.txt"
+	static_export.write_text(export, txt_m3d)
 	# print
-	global fcurve_keys_max
-	print("-------------------")
-	print("Export information:")
-	print("-------------------")
+	print("-----------------------")
+	print("M3D Export (Animation):")
+	print("-----------------------")
 	print("left hand:\t"+str(is_left_hand))
 	print("export dir:\t"+export_dir)
-	print("bones:\t\t"+str(len(arma.bones)))
-	print("keyframes:\t"+str(fcurve_keys_max))
 
 # main
-export_m3d_anim()
+if static_export.prepare_uv():
+	export_m3d_anim()
