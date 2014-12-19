@@ -34,5 +34,5 @@ Known Issues:
 
 License:
 --------
-Copyright 2014 Huang Yiting (http://endrollex.com)
-imm_blender_export is distributed under the terms of the GNU General Public License
+* Copyright 2014 Huang Yiting (http://endrollex.com)
+* imm_blender_export is distributed under the terms of the GNU General Public License
