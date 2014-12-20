@@ -214,7 +214,7 @@ def package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot):
 		if ix%fcurve_keys_max == 0:
 			rt_list.append("B"+str(int(ix/fcurve_keys_max))+" #K: "+str(fcurve_keys_max))
 			rt_list.append("{")
-		rt_list.append("Time: "+txt_time[ix]+" Pos: "+txt_pos[ix]+" Scale: "+txt_sca[ix]+" Quat: "+txt_rot[ix])
+		rt_list.append("T: "+txt_time[ix]+" P: "+txt_pos[ix]+" S: "+txt_sca[ix]+" Q: "+txt_rot[ix])
 		if (ix-fcurve_keys_max+1)%fcurve_keys_max == 0:
 			rt_list.append("}")
 	return rt_list

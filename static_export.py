@@ -285,14 +285,21 @@ def package_m3d(is_anim = False, package_txt = ["", "", "", "", ""]):
 	txt_m3d.append("AnimationClips "+str(len_anim_clips))
 	txt_m3d.append("")
 	# materials
-	d_diffuse = mesh.materials[0].diffuse_color*mesh.materials[0].diffuse_intensity
-	d_specular = mesh.materials[0].specular_color*mesh.materials[0].specular_intensity
-	# mat_hard from export_fbx.py
-	d_mat_hard = ((float(mesh.materials[0].specular_hardness) - 1.0) / 510.0) * 128.0
-	d_reflect = mesh.materials[0].mirror_color*mesh.materials[0].raytrace_mirror.reflect_factor
+	d_ambient = 1.0
+	d_diffuse = mathutils.Vector((0.64, 0.64, 0.64))
+	d_specular = mathutils.Vector((0.5, 0.5, 0.5))
+	d_mat_hard = 12.298
+	d_reflect = mathutils.Vector((0.0, 0.0, 0.0))
+	if (len(mesh.materials)) != 0:
+		d_ambient = mesh.materials[0].ambient
+		d_diffuse = mesh.materials[0].diffuse_color*mesh.materials[0].diffuse_intensity
+		d_specular = mesh.materials[0].specular_color*mesh.materials[0].specular_intensity
+		# mat_hard from export_fbx.py
+		d_mat_hard = ((float(mesh.materials[0].specular_hardness) - 1.0) / 510.0) * 128.0
+		d_reflect = mesh.materials[0].mirror_color*mesh.materials[0].raytrace_mirror.reflect_factor
 	# materials txt
 	txt_m3d.append("----------------------------------Materials-")
-	txt_m3d.append("Ambient:"+(" "+str(mesh.materials[0].ambient))*3)
+	txt_m3d.append("Ambient:"+(" "+str(d_ambient))*3)
 	txt_m3d.append("Diffuse: "+str(coordinate_to_str(d_diffuse)))
 	txt_m3d.append("Specular: "+str(coordinate_to_str(d_specular)))
 	txt_m3d.append("SpecPower: "+str(round_sig(d_mat_hard)))
