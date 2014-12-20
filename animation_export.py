@@ -212,8 +212,7 @@ def package_time_p_s_r(txt_time, txt_pos, txt_sca, txt_rot):
 		print("imm export error: keyframes no date")
 	for ix in range(0, len(txt_time)):
 		if ix%fcurve_keys_max == 0:
-			rt_list.append("B"+str(int(ix/fcurve_keys_max))+" #K: "+str(fcurve_keys_max))
-			rt_list.append("{")
+			rt_list.append("B"+str(int(ix/fcurve_keys_max))+" #K: "+str(fcurve_keys_max)+" {")
 		rt_list.append("T: "+txt_time[ix]+" P: "+txt_pos[ix]+" S: "+txt_sca[ix]+" Q: "+txt_rot[ix])
 		if (ix-fcurve_keys_max+1)%fcurve_keys_max == 0:
 			rt_list.append("}")
