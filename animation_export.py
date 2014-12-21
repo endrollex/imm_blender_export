@@ -267,7 +267,7 @@ def package_vertex_triangle_anim():
 
 # package offset hierarchy time_p_s_r
 def package_offset_hierarchy(offset, hierarchy, time_p_s_r):
-	txt_anim = []
+	txt_anim = [""]
 	txt_anim.append("--------------------------------BoneOffsets-")
 	txt_anim += offset
 	txt_anim.append("")
