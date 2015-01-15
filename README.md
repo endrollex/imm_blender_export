@@ -25,7 +25,7 @@ How to Use:
 -----------
 * Run the script in Blender Text Editor, and open Toggle System Console.
 * Before run script, you may do some setting in the source code.
-* Blender version of last test is 2.72b.
+* This project has been tested with Blender 2.72b.
 
 Known Issues:
 -------------
