@@ -6,25 +6,41 @@ import os
 import bpy
 os.system("cls")
 
+# find specific type index from objects
+obj_ix_arma = -1
+obj_ix_mesh = -1
+
+# armatures
+print("----------")
+print("armatures:")
+print("----------")
+print("armatures\t", bpy.data.armatures)
+print("objects\t\t", bpy.data.objects)
+for ix, obj in enumerate(bpy.data.objects):
+	if obj.type == "ARMATURE":
+		print("object["+str(ix)+"]\t", obj.type)
+		if obj_ix_arma == -1:
+			obj_ix_arma = ix
+
 # refer
-o_arma = bpy.data.objects[0]
+o_arma = bpy.data.objects[obj_ix_arma]
 o_mesh = bpy.data.objects[2]
 arma = o_arma.data
 mesh = o_mesh.data
 scene = bpy.data.scenes[0]
 action = None
 
-# armature and bone
-print("------------------")
-print("armature and bone:")
-print("------------------")
-ix = 0
+# first armature and bone
+ix_bone = 0
+print("")
+print("----------------------------")
+print("first armature and bones["+str(ix_bone)+"]:")
+print("----------------------------")
 print("bones:\t\t", arma.bones)
-print("ix:\t\t", ix)
-print("bones[ix]:\t", arma.bones[ix])
-print("parent:\t\t", arma.bones[ix].parent)
+print("bones["+str(ix_bone)+"]:\t", arma.bones[ix_bone])
+print("parent:\t\t", arma.bones[ix_bone].parent)
 print("matrix_local:")
-print(arma.bones[ix].matrix_local)
+print(arma.bones[ix_bone].matrix_local)
 
 # maximum number of bones per vertex
 print("")
@@ -58,6 +74,6 @@ scene.frame_set(1)
 scene.update()
 print("fps:\t\t", scene.render.fps)
 print("frame_current:\t", scene.frame_current)
-print("bones[ix]:\t", o_arma.pose.bones[ix])
+print("bones["+str(ix_bone)+"]:\t", o_arma.pose.bones[ix_bone])
 print("matrix:")
-print(o_arma.pose.bones[ix].matrix)
+print(o_arma.pose.bones[ix_bone].matrix)
