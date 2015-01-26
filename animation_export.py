@@ -9,14 +9,10 @@ import os
 import bpy
 import mathutils
 import sys
-sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+sys.path.append("D:\\Dropbox\\imm_blender_export\\")
 import static_export
+import global_var
 os.system("cls")
-
-# setting
-is_left_hand = True
-export_dir = static_export.export_dir
-static_export.is_left_hand = is_left_hand
 
 # refer
 o_arma = bpy.data.objects[0]
@@ -31,7 +27,7 @@ fcurve_keys_max = 0
 
 # matrix right to left hand
 def to_left_matrix(mat):
-	if not is_left_hand:
+	if not global_var.is_left_hand:
 		return mat
 	s_x = mathutils.Matrix.Identity(3)
 	s_x[0][0] = -1
@@ -288,14 +284,14 @@ def export_m3d_anim():
 	len_anim_clips =  1
 	txt_m3d = static_export.package_m3d(True, [txt_vertex, txt_triangle, len_uv, len_bones, len_anim_clips])
 	txt_m3d += package_offset_hierarchy(txt_offset, txt_hierarchy, txt_time_p_s_r)
-	export = export_dir+"export_anim.txt"
+	export = global_var.export_dir+"export_anim.txt"
 	static_export.write_text(export, txt_m3d)
 	# print
 	print("-----------------------")
 	print("M3D Export (Animation):")
 	print("-----------------------")
-	print("left hand:\t"+str(is_left_hand))
-	print("export dir:\t"+export_dir)
+	print("left hand:\t"+str(global_var.is_left_hand))
+	print("export dir:\t"+global_var.export_dir)
 
 # main
 if static_export.prepare_uv():

@@ -6,7 +6,7 @@ immature Blender export
 
 Introduction:
 -------------
-* This is not a Blender addon, but a script, need to build configuration. 
+* This is not a Blender addon, but a script, need to edit settings. 
 * Export Blender model data for a game engine.
 * The .m3d file format is a custom file format to store meshes,
   see (Introduction to 3D Game Programming with DirectX 11 by Frank Luna).
@@ -20,12 +20,12 @@ Files Explanation:
 
 In Development:
 ---------------
-The project is in development, maybe some functions can be used for export.
+The project is in development, maybe it can be used for export.
 
 How to Use:
 -----------
+* Before running the script, you may edit some settings in the script files.
 * Run the script in Blender Text Editor, and open Toggle System Console.
-* Before run script, you may do some setting in the source code.
 * This project has been tested with Blender 2.72b.
 
 Known Issues:
