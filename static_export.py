@@ -270,7 +270,7 @@ def package_m3d(is_anim = False, package_txt = ["", "", "", "", ""]):
 	# mesh
 	txt_vertex, txt_triangle, len_uv = package_txt[0:3]
 	len_bones = 0
-	len_anim_clips = 1
+	len_anim_clips = 0
 	if (is_anim):
 		len_bones, len_anim_clips = package_txt[3:5]
 	len_triangle = len(txt_triangle)
