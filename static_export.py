@@ -180,7 +180,7 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 		s2 = w3.x - w1.x
 		t1 = w2.y - w1.y
 		t2 = w3.y - w1.y
-		# if div by zero error
+		# if div by zero error??
 		r = 0
 		test = s1 * t2 - s2 * t1
 		if test == 0:

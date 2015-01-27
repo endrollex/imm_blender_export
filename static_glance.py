@@ -14,6 +14,17 @@ print("------")
 print("meshes:")
 print("------")
 print("meshes:\t\t\t", bpy.data.meshes)
+#
+sum_no_uv = 0
+for mesh in bpy.data.meshes:
+	# check tessfaces, to avoid repeated calc_tessface
+	if len(mesh.tessfaces) == 0:
+		mesh.calc_tessface()
+	try:
+		mesh.tessface_uv_textures[0].data[0].uv1
+	except:
+		sum_no_uv += 1
+print("meshes with no uv:\t", str(sum_no_uv))
 
 # meshes[0]
 print("")

@@ -10,21 +10,26 @@ os.system("cls")
 obj_ix_arma = -1
 obj_ix_mesh = -1
 
+# find_first_object
+def find_first_object(str_type):
+	for ix, obj in enumerate(bpy.data.objects):
+		if obj.type == str_type:
+			print("object["+str(ix)+"]\t", obj.type)
+			return ix
+	return -1
+
 # armatures
 print("----------")
 print("armatures:")
 print("----------")
 print("armatures\t", bpy.data.armatures)
 print("objects\t\t", bpy.data.objects)
-for ix, obj in enumerate(bpy.data.objects):
-	if obj.type == "ARMATURE":
-		print("object["+str(ix)+"]\t", obj.type)
-		if obj_ix_arma == -1:
-			obj_ix_arma = ix
+obj_ix_arma = find_first_object("ARMATURE")
+obj_ix_mesh = find_first_object("MESH")
 
 # refer
 o_arma = bpy.data.objects[obj_ix_arma]
-o_mesh = bpy.data.objects[2]
+o_mesh = bpy.data.objects[obj_ix_mesh]
 arma = o_arma.data
 mesh = o_mesh.data
 scene = bpy.data.scenes[0]
@@ -51,7 +56,7 @@ count = 0
 for v in mesh.vertices:
 	if len(v.groups) > 4:
 		count += 1
-print("total of vertexes which has more than 4 bones:\t", count)
+print("vertexes which has more than 4 bones:\t", count)
 
 # action
 print("")
