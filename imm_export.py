@@ -1,5 +1,5 @@
 #
-# lib_export.py
+# imm_export.py
 # export static data to text
 #
 # Copyright 2015 Huang Yiting (http://endrollex.com)
@@ -99,12 +99,20 @@ def find_mesh():
 				obj_list.append(ix)
 	return obj_list
 
-# find_arma
-def find_arma():
+# find_first_object
+def find_first_object(o_type):
 	for ix, obj in enumerate(bpy.data.objects):
-		if obj.type == "ARMATURE":
+		if obj.type == o_type:
 			return [ix]
 	return []
+
+# find_objects
+def find_objects(o_type):
+	obj_list = []
+	for ix, obj in enumerate(bpy.data.objects):
+		if obj.type == o_type:
+			obj_list.append(ix)
+	return obj_list
 
 # get uv list and tessface list
 # Blender's uv is per tessface
@@ -394,7 +402,6 @@ def package_m3d(package_txt, info_anim = []):
 def export_m3d():
 	time_start = datetime.datetime.now()
 	objects_mesh = find_mesh()
-	objects_arma = find_arma()
 	txt_m3d = package_m3d(package_mesh_static(objects_mesh))
 	export = global_var.export_dir+"export_static.txt"
 	write_text(export, txt_m3d)
