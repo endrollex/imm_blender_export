@@ -11,7 +11,7 @@ import math
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import global_var
 os.system("cls")
 
@@ -105,14 +105,6 @@ def find_first_object(o_type):
 		if obj.type == o_type:
 			return [ix]
 	return []
-
-# find_objects
-def find_objects(o_type):
-	obj_list = []
-	for ix, obj in enumerate(bpy.data.objects):
-		if obj.type == o_type:
-			obj_list.append(ix)
-	return obj_list
 
 # get uv list and tessface list
 # Blender's uv is per tessface
@@ -327,7 +319,7 @@ def package_mesh_static(objects_mesh):
 	txt_material = []
 	# build mesh data
 	for ix in objects_mesh:
-		# uv
+		# arrange vertex accroding uv
 		mesh = bpy.data.objects[ix].data
 		uv, uv_ex_dict, tessface = data_uv_and_face(mesh)
 		len_uv = len(uv)
@@ -402,6 +394,10 @@ def package_m3d(package_txt, info_anim = []):
 def export_m3d():
 	time_start = datetime.datetime.now()
 	objects_mesh = find_mesh()
+	# check
+	if len(objects_mesh) == 0:
+		print("imm export error: no uv mapped mesh found")
+		return;	
 	txt_m3d = package_m3d(package_mesh_static(objects_mesh))
 	export = global_var.export_dir+"export_static.txt"
 	write_text(export, txt_m3d)

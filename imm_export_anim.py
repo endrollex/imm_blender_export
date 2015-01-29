@@ -10,7 +10,7 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import imm_export
 import global_var
 os.system("cls")
@@ -169,25 +169,25 @@ def reassign_weight(vert_group_in):
 	return re_list
 
 # data blender indices and weights
-def data_b_index_weight(mesh):
-	b_index = []
-	b_weight = []
+def data_ble_index_weight(mesh):
+	ble_index = []
+	ble_weight = []
 	for vert in mesh.vertices:
-		b_index.append([])
-		b_weight.append([])
+		ble_index.append([])
+		ble_weight.append([])
 		# only use 4 bone per vertex
 		re_group = reassign_weight(vert.groups)
 		for group in re_group:
-			b_index[-1].append(group[0])
-			b_weight[-1].append(group[1])
-	return [b_index, b_weight]
+			ble_index[-1].append(group[0])
+			ble_weight[-1].append(group[1])
+	return [ble_index, ble_weight]
 
 # data blender indices and weights add according uv
-def data_b_index_weight_add(len_uv, uv_ex_dict, d_b_index_weight):
+def data_ble_index_weight_add(len_uv, uv_ex_dict, d_ble_index_weight):
 	for ix in range(len_uv-len(uv_ex_dict), len_uv):
-		d_b_index_weight[0].append(d_b_index_weight[0][uv_ex_dict[ix]])
-		d_b_index_weight[1].append(d_b_index_weight[1][uv_ex_dict[ix]])
-	return d_b_index_weight
+		d_ble_index_weight[0].append(d_ble_index_weight[0][uv_ex_dict[ix]])
+		d_ble_index_weight[1].append(d_ble_index_weight[1][uv_ex_dict[ix]])
+	return d_ble_index_weight
 
 ####################################################################################################
 # export functions
@@ -223,15 +223,15 @@ def package_anim_clip(txt_time, txt_pos, txt_sca, txt_rot):
 	return rt_list
 
 # package vertex with animation data
-def package_vertex_anim(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_b_index, txt_b_weight):
+def package_vertex_anim(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_ble_index, txt_ble_weight):
 	rt_list = []
 	for ix in range(0, len_uv):
 		temp = "P: "+txt_position[ix]+"\n"
 		temp += "T: "+txt_tangent[ix][0:-2]+"\n"
 		temp += "N: "+txt_normal[ix]+"\n"
 		temp += "T: "+txt_uv[ix]+"\n"
-		temp += "W: "+txt_b_weight[ix]+"\n"
-		temp += "I: "+txt_b_index[ix]+"\n"
+		temp += "W: "+txt_ble_weight[ix]+"\n"
+		temp += "I: "+txt_ble_index[ix]+"\n"
 		rt_list.append(temp)
 	return rt_list
 
@@ -259,13 +259,62 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 		txt_coll_anim_clip += txt_anim_clip
 		txt_coll_anim_clip.append("}")
 		len_anim_clip += 1
-	
-		
-		
-	
+	# mesh data init
+	txt_vertex = []
+	txt_triangle = []
+	sub_vertex_start = [0]
+	sub_vertex_count = []
+	sub_face_start = [0]
+	sub_face_count = []
+	txt_material = []
+	# build mesh data
+	for ix in objects_mesh:
+		# arrange vertex accroding uv
+		mesh = bpy.data.objects[ix].data
+		uv, uv_ex_dict, tessface = imm_export.data_uv_and_face(mesh)
+		len_uv = len(uv)
+		# triangle and vertex
+		triangle = imm_export.data_triangle(tessface)
+		position = imm_export.data_position(mesh, len_uv, uv_ex_dict)
+		normal = imm_export.data_normal(mesh, len_uv, uv_ex_dict)
+		tangent = imm_export.data_tangent(len_uv, position, normal, uv, triangle)
+		# vertex
+		txt_uv = imm_export.format_vector(uv)
+		txt_position = imm_export.format_vector(position)
+		txt_normal = imm_export.format_vector(normal)
+		txt_tangent = imm_export.format_vector(tangent)
+		# subset
+		sub_vertex_count.append(len_uv)
+		sub_face_count.append(len(triangle))
+		if len(sub_vertex_count) > 1:
+			sub_vertex_start.append(sub_vertex_start[-1]+sub_vertex_count[-2])
+			sub_face_start.append(sub_face_start[-1]+sub_face_count[-2])
+			triangle = imm_export.offset_triangle(triangle, sub_vertex_start[-1])
+		txt_triangle += imm_export.format_triangle(triangle)
+		# material
+		txt_material += imm_export.txt_matrial(mesh)
+		# bone weight and index
+		ble_index_weight = data_ble_index_weight(mesh)
+		ble_index_weight = data_ble_index_weight_add(len_uv, uv_ex_dict, ble_index_weight)
+		txt_ble_index = format_index(ble_index_weight[0])
+		txt_ble_weight = imm_export.format_vector(ble_index_weight[1])
+		txt_vertex += package_vertex_anim\
+			(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_ble_index, txt_ble_weight)
+	# subset table
+	txt_subset = []
+	for ix in range(0, len(sub_vertex_start)):
+		temp_str = "SubsetID: "+str(ix)+" "
+		temp_str += "VertexStart: "+str(sub_vertex_start[ix])+" "
+		temp_str += "VertexCount: "+str(sub_vertex_count[ix])+" "
+		temp_str += "FaceStart: "+str(sub_face_start[ix])+" "
+		temp_str += "FaceCount: "+str(sub_face_count[ix])
+		txt_subset.append(temp_str)
+	txt_subset.append("")
+	return [txt_vertex, txt_triangle, txt_subset, txt_material, \
+		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip]
 
 # package bone offset hierarchy animation clips
-def package_bone_anim(offset, hierarchy, anim_clip):
+def package_bone_anim(offset, hierarchy, coll_anim_clip):
 	txt_anim = [""]
 	txt_anim.append("--------------------------------BoneOffsets-")
 	txt_anim += offset
@@ -274,28 +323,40 @@ def package_bone_anim(offset, hierarchy, anim_clip):
 	txt_anim += hierarchy
 	txt_anim.append("")
 	txt_anim.append("-----------------------------AnimationClips-")
-	txt_anim.append("AnimationClip Take1")
-	txt_anim.append("{")
-	txt_anim += anim_clip
-	txt_anim.append("}")
+	txt_anim += coll_anim_clip
 	return txt_anim
 
 # export m3d anim
 def export_m3d_anim():
 	time_start = datetime.datetime.now()
-	#
+	# object
 	objects_arma = imm_export.find_first_object("ARMATURE")
 	objects_mesh = imm_export.find_mesh()
-	o_arma = bpy.data.objects[objects_arma[0]]
-	arma = o_arma.data
 	scene = bpy.data.scenes[0]
 	coll_action = bpy.data.actions
-	#
-	package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
-	
-	
-	
-	#
+	# check
+	if len(objects_mesh) == 0:
+		print("imm export error: no uv mapped mesh found")
+		return;
+	if len(objects_arma) == 0:
+		print("imm export error: no armature found")
+		return
+	if len(coll_action) == 0:
+		print("imm export error: no action found")
+		return
+	# object
+	o_arma = bpy.data.objects[objects_arma[0]]
+	arma = o_arma.data
+	# package
+	len_bones = len(arma.bones)
+	txt_vertex, txt_triangle, txt_subset, txt_material, \
+		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip = \
+		package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
+	txt_m3d = imm_export.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
+		[len_bones, len_anim_clip])
+	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
+	export = global_var.export_dir+"export_anim.txt"
+	imm_export.write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	# print
 	print("-----------------------")
