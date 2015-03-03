@@ -10,7 +10,7 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+sys.path.append("D:\\Dropbox\\imm_blender_export\\")
 import imm_export
 import global_var
 os.system("cls")
@@ -87,6 +87,12 @@ def get_to_parent(o_arma, ix):
 	to_parent = o_arma.pose.bones[ix].parent.matrix.inverted()*o_arma.pose.bones[ix].matrix
 	return to_parent
 
+# set_active_action
+def set_active_action(action_in):
+	for area in bpy.context.screen.areas:
+		if area.type == 'DOPESHEET_EDITOR':
+			area.spaces.active.action = action_in
+
 # data bone hierarchy
 def data_hierarchy(arma):
 	rt_list = []
@@ -107,6 +113,7 @@ def data_offset(o_mesh, o_arma, arma):
 
 # data anim clip, time position scale rotation
 def data_anim_clip(scene, action, o_arma):
+	set_active_action(action)
 	time_list = []
 	pos_list = []
 	sca_list = []
