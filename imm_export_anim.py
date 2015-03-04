@@ -88,7 +88,8 @@ def get_to_parent(o_arma, ix):
 	return to_parent
 
 # set_active_action
-def set_active_action(action_in):
+def set_active_action(action_in, o_arma):
+	bpy.context.scene.objects.active = o_arma
 	for area in bpy.context.screen.areas:
 		if area.type == 'DOPESHEET_EDITOR':
 			area.spaces.active.action = action_in
@@ -113,7 +114,7 @@ def data_offset(o_mesh, o_arma, arma):
 
 # data anim clip, time position scale rotation
 def data_anim_clip(scene, action, o_arma):
-	set_active_action(action)
+	set_active_action(action, o_arma)
 	time_list = []
 	pos_list = []
 	sca_list = []
