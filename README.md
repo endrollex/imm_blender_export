@@ -23,8 +23,8 @@ The project is in development, maybe it can be used for export.
 
 How to Use:
 -----------
+* Edit sys.path.append() in every .py file.
 * Run the script in Blender Text Editor, and open Toggle System Console.
-* Before running the script, you may edit some settings in the script files.
 * This project has been tested with Blender 2.72b.
 
 Model Data Require:
@@ -37,9 +37,10 @@ Known Issues:
 * Tangent data's algorithm sometimes will div by zero, I do not know why.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
+* Mesh data is object's local, not world space, all world transform should be setted to zero.
 * After export, You may need to manually edit the texture's name or other things.
 
 License:
 --------
-* Copyright 2014 Huang Yiting (http://endrollex.com)
+* Copyright 2014-2015 Huang Yiting (http://endrollex.com)
 * imm_blender_export is distributed under the terms of the GNU General Public License
