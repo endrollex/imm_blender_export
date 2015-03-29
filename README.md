@@ -23,18 +23,14 @@ The project is in development, maybe it can be used for export.
 
 How to Use:
 -----------
-* Edit sys.path.append() in every .py file.
+* Edit sys.path.append() in every .py file, the path is the working directory.
 * Keep in object model.
+* Only export mesh object which has UV map.
 * Hide object which is not want to export.
-* Ensure that only one armature object in the scene. (animation export situation)
+* Exported mesh data is object's local, not world space, all world transform should be zero.
+* Ensure that only one armature object in the scene, if more than one, the first will be exported. (animation export situation)
 * Run the script in Blender Text Editor, and open Toggle System Console.
 * This project has been tested with Blender 2.72b.
-
-Model Data Require:
---------
-* Only export meshes which has UV map.
-* Exported mesh data is object's local, not world space, all world transform should be zero.
-* Armature must has only one root bone. (animation export situation)
 
 Known Issues:
 -------------
