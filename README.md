@@ -24,12 +24,16 @@ The project is in development, maybe it can be used for export.
 How to Use:
 -----------
 * Edit sys.path.append() in every .py file.
+* Keep in object model.
+* Hide object which is not want to export.
+* Ensure that only one armature object in the scene.
 * Run the script in Blender Text Editor, and open Toggle System Console.
 * This project has been tested with Blender 2.72b.
 
 Model Data Require:
 --------
 * Only export meshes which has UV map.
+* Exported mesh data is object's local, not world space, all world transform should be zero.
 * Armature must has only one root bone. (animation export situation)
 
 Known Issues:
@@ -37,7 +41,6 @@ Known Issues:
 * Tangent data's algorithm sometimes will div by zero, I do not know why.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
-* Mesh data is object's local, not world space, all world transform should be setted to zero.
 * After export, You may need to manually edit the texture's name or other things.
 
 License:

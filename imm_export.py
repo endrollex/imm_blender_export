@@ -95,7 +95,7 @@ def find_mesh():
 		if obj.type == "MESH":
 			mesh = mesh = bpy.data.objects[ix].data
 			calc_tess(mesh)
-			if len(mesh.uv_textures) != 0:
+			if len(mesh.uv_textures) != 0 and not obj.hide:
 				obj_list.append(ix)
 	return obj_list
 
