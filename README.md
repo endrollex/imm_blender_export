@@ -26,7 +26,7 @@ How to Use:
 * Edit sys.path.append() in every .py file.
 * Keep in object model.
 * Hide object which is not want to export.
-* Ensure that only one armature object in the scene.
+* Ensure that only one armature object in the scene. (animation export situation)
 * Run the script in Blender Text Editor, and open Toggle System Console.
 * This project has been tested with Blender 2.72b.
 
