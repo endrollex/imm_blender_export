@@ -168,7 +168,8 @@ def reassign_weight(vert_group_in):
 	for re in re_list:
 		sum_weight += re[1]
 	sum_weight_diff = 1.0-sum_weight
-	if sum_weight_diff > 0.02:
+	# sum_weight should be 1.0, or 0.0 for none influence
+	if sum_weight_diff > 0.01 or sum_weight_diff < 0.01:
 		for re in re_list:
 			re[1] += (re[1]/sum_weight)*sum_weight_diff
 	if len_list < 4:
