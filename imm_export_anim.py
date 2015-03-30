@@ -90,9 +90,10 @@ def get_to_parent(o_arma, ix):
 # set_active_action
 def set_active_action(action_in, o_arma):
 	bpy.context.scene.objects.active = o_arma
-	for area in bpy.context.screen.areas:
-		if area.type == 'DOPESHEET_EDITOR':
-			area.spaces.active.action = action_in
+	temp = bpy.context.area.type
+	bpy.context.area.type = 'DOPESHEET_EDITOR'
+	bpy.context.area.spaces.active.action = action_in
+	bpy.context.area.type = temp
 
 # data bone hierarchy
 def data_hierarchy(arma):
