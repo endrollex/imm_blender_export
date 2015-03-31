@@ -28,7 +28,8 @@ How to Use:
 * Only export mesh object which has UV map.
 * Hide object which is not want to export.
 * Exported mesh data is object's local, not world space, all world transform should be zero.
-* Ensure that only one armature object in the scene, if more than one, the first will be exported. (animation export situation)
+* Ensure that only one armature object in the scene,
+  if more than one, the first will be exported. (animation export situation)
 * Run the script in Blender Text Editor, and open Toggle System Console.
 * This project has been tested with Blender 2.72b.
 
@@ -38,6 +39,11 @@ Known Issues:
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
 * After export, You may need to manually edit the texture's name or other things.
+
+Note:
+-----
+* Vertex weight will be sorted from large to small,
+  sum of weight is 1.0f or 0.0f indicate none bone influences this vertex.
 
 License:
 --------
