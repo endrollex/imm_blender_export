@@ -43,7 +43,7 @@ Known Issues:
 Note:
 -----
 * Vertex weight will be sorted from large to small,
-  sum of weight is 1.0f or 0.0f indicate 1-4 bones or none bone influences this vertex.
+  sum of weight is 1.0f or 0.0f indicates 1-4 bones or none bone influences this vertex.
 
 License:
 --------
