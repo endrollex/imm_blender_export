@@ -24,7 +24,7 @@ The project is in development, maybe it can be used for export.
 How to Use:
 -----------
 * Edit sys.path.append() in every .py file, the path is the working directory.
-* Keep in object model.
+* Keep in Object Model.
 * Only export mesh object which has UV map.
 * Hide object which is not want to export.
 * Exported mesh data is object's local, not world space, all world transform should be zero.
@@ -43,7 +43,7 @@ Known Issues:
 Note:
 -----
 * Vertex weight will be sorted from large to small,
-  sum of weight is 1.0f or 0.0f indicate none bone influences this vertex.
+  sum of weight is 1.0f or 0.0f indicate 1-4 bones or none bone influences this vertex.
 
 License:
 --------
