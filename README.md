@@ -35,9 +35,12 @@ How to Use:
 
 Known Issues:
 -------------
-* Tangent data's algorithm sometimes will div by zero, I do not know why.
+* A particular step of tangent data's algorithm sometimes will div by zero, I do not know why, 
+  now let this step's result to be 0.0f, it is dirty solution.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
+* If you delete a bone, be sure the Vertex Group is deleted too,
+  because an exported group is not according group name but the index.
 * After export, You may need to manually edit the texture's name or other things.
 
 Note:
