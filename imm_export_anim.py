@@ -104,6 +104,11 @@ def data_hierarchy(arma):
 
 # data offset transformation, mesh to armature
 def data_offset(o_mesh, o_arma, arma):
+	# if scale is not 1.0, offset matrix will be wrong
+	# because blender has applied the armaure scale to the child mesh
+	# all world transform should be zero
+	# mesh_to arma shold be identity matrix
+	# this step is unnecessary, but check if the world fransform is exists (export error)
 	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
