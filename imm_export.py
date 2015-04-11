@@ -102,7 +102,7 @@ def find_mesh():
 # find_first_object
 def find_first_object(o_type):
 	for ix, obj in enumerate(bpy.data.objects):
-		if obj.type == o_type:
+		if obj.type == o_type and not obj.hide:
 			return [ix]
 	return []
 
