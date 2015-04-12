@@ -169,13 +169,8 @@ def data_uv_and_face(mesh):
 	uv_list = []
 	for t in temp:
 		if (len(t)) == 0:
-			print("|")
-			print("|")
-			print("|")
+			print("--WARNING!--")
 			print("imm export error: uv wrong, maybe has single vertex")
-			print("|")
-			print("|")
-			print("|")
 		uv_list.append(t[0])
 	return [uv_list, uv_ex_dict, tessface_list]
 

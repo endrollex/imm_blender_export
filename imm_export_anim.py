@@ -99,7 +99,13 @@ def set_active_action(action_in, o_arma):
 def data_hierarchy(arma):
 	rt_list = []
 	for index, item in enumerate(arma.bones):
-		rt_list.append([index, get_index(item.parent, arma.bones)])
+		index_parent = get_index(item.parent, arma.bones)
+		# check
+		if index_parent >= index:
+			print("--WARNING!--")
+			print("imm export error: hierarchy wrong, bone's index must be less than its parent's index")
+			return
+		rt_list.append([index, index_parent])
 	return rt_list
 
 # data offset transformation, mesh to armature

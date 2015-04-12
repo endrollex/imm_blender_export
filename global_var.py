@@ -6,6 +6,6 @@
 # imm_blender_export is distributed under the terms of the GNU General Public License
 #
 
-# var
+# setting var
 export_dir = "D:\\Dropbox\\imm_blender_export\\"
 is_left_hand = True
