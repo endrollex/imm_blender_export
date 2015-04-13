@@ -13,9 +13,10 @@ Introduction:
 
 Files Explanation:
 ------------------
-* **imm_export.py**: Export static data to text.
-* **imm_export_anim.py**: Export animation data to text.
+* **export_static.py**: Export static data to text.
+* **export_anim.py**: Export animation data to text.
 * **global_var.py**: Global variables.
+* **run_script.py**: Run script.
 
 In Development:
 ---------------

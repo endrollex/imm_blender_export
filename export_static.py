@@ -1,5 +1,5 @@
 #
-# imm_export.py
+# export_static.py
 # export static data to text
 #
 # Copyright 2015 Huang Yiting (http://endrollex.com)
@@ -11,9 +11,9 @@ import math
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import global_var
-os.system("cls")
+#os.system("cls")
 
 ####################################################################################################
 # format functions
@@ -169,7 +169,7 @@ def data_uv_and_face(mesh):
 	uv_list = []
 	for t in temp:
 		if (len(t)) == 0:
-			print("--WARNING!--")
+			print("--ATTENTION!--")
 			print("imm export error: uv wrong, maybe has single vertex")
 		uv_list.append(t[0])
 	return [uv_list, uv_ex_dict, tessface_list]
@@ -413,5 +413,4 @@ def export_m3d():
 	print("export dir:\t"+global_var.export_dir)
 	print("spend time:\t"+str(time_spend.total_seconds())+" seconds")
 
-# export
-export_m3d()
+# end

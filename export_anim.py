@@ -1,5 +1,5 @@
 #
-# imm_export_anim.py
+# export_anim.py
 # export animation data to text
 #
 # Copyright 2015 Huang Yiting (http://endrollex.com)
@@ -10,13 +10,17 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
-import imm_export
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+import export_static
 import global_var
 os.system("cls")
 
 # global var
 fcurve_keys_max = 0
+rigify_list = []
+rigify_dict = {}
+rigify_dict_inv = {}
+rigify_rig_org = {}
 
 ####################################################################################################
 # format functions
@@ -39,7 +43,7 @@ def to_left_matrix(mat):
 def format_matrix(list_in):
 	rt_list = []
 	for mat in list_in:
-		vec_list = imm_export.format_vector(mat)
+		vec_list = export_static.format_vector(mat)
 		temp = vec_list[0]
 		for ix in range(1, len(vec_list)):
 			temp += " "+vec_list[ix]
@@ -64,8 +68,124 @@ def format_index(list_in):
 def number_to_str(list_in):
 	rt_list = []
 	for num in list_in:
-		rt_list.append(str(imm_export.round_sig(num)))
+		rt_list.append(str(export_static.round_sig(num)))
 	return rt_list
+
+####################################################################################################
+# rigify functions
+####################################################################################################
+####################################################################################################
+
+# read hierarchy form text
+def read_hierarchy_rigify(arma):
+	global rigify_list
+	global rigify_dict
+	global rigify_dict_inv
+	global rigify_rig_org
+	#
+	read_path = global_var.export_dir+"rigify_ORG.csv"
+	f = open(read_path)
+	rigify_list = f.read().splitlines()
+	f.close()
+	#
+	for index, bone in enumerate(arma.bones):
+		if bone.name in rigify_list:
+			rigify_dict[bone.name] = index
+			rigify_dict_inv[index] = bone.name
+			rigify_rig_org[index] = rigify_list.index(bone.name)
+	#check
+	check = False
+	if len(rigify_list) == len(rigify_dict):
+		check = True
+	return check
+
+# data bone hierarchy
+def data_hierarchy_rigify(arma):
+	global rigify_rig_org
+	rt_list = []
+	for index, item in enumerate(arma.bones):
+		index_parent = get_index(item.parent, arma.bones)
+		# check
+		if index_parent >= index:
+			print("--ATTENTION!--")
+			print("imm export error: hierarchy wrong, child's index bigger than parent's")
+			return
+		if index in rigify_rig_org:
+			if index_parent != -1:
+				if index_parent not in rigify_rig_org:
+					print("--ATTENTION!--")
+					print("imm export error: hierarchy wrong")
+					return
+				index_parent = rigify_rig_org[index_parent]
+			rt_list.append([rigify_rig_org[index], index_parent])
+		#
+	return rt_list
+
+# data offset transformation, mesh to armature
+def data_offset_rigify(o_mesh, o_arma, arma):
+	check = read_hierarchy_rigify(arma)
+	if not check:
+		print("--ATTENTION!--")
+		print("imm export error: rigify hierarchy read error")
+		return
+	global rigify_rig_org
+	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
+	rt_list = []
+	for (k, v) in rigify_rig_org.items():
+		mat = (mesh_to_arma*arma.bones[k].matrix_local).transposed()
+		mat = to_left_matrix(mat)
+		mat = mat.inverted()
+		rt_list.append(mat)
+	return rt_list
+
+# data anim clip, time position scale rotation
+def data_anim_clip_rigify(scene, action, o_arma):
+	global rigify_rig_org
+	set_active_action(action, o_arma)
+	time_list = []
+	pos_list = []
+	sca_list = []
+	rot_list = []
+	# find completed framekeys in fcurves
+	global fcurve_keys_max
+	fcurve_keys_max = 0
+	fcurve_ix = 0
+	for ix_fcu in range(0, len(action.fcurves)):
+		len_fcurve_keys = len(action.fcurves[ix_fcu].keyframe_points)
+		if len_fcurve_keys > fcurve_keys_max:
+			fcurve_keys_max = len_fcurve_keys
+			fcurve_ix = ix_fcu
+	# fps -> second
+	frame_time = 1/scene.render.fps
+	cnt_bone = 0
+	# time
+	for (k, v) in rigify_rig_org.items():
+		for key in action.fcurves[fcurve_ix].keyframe_points:
+			time_list.append(key.co[0]*frame_time)
+			pos_list.append(None)
+			sca_list.append(None)
+			rot_list.append(None)
+		cnt_bone += 1
+	# position scale rotation
+	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
+		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
+		scene.frame_set(key.co[0])
+		scene.update
+		for (k, v) in rigify_rig_org.items():
+			ix = v
+			mat_to_p = get_to_parent(o_arma, k).transposed()
+			mat_to_p = to_left_matrix(mat_to_p)
+			mat_to_p = mat_to_p.transposed()
+			loc, rot, sca = mat_to_p.decompose()
+			rot = mathutils.Quaternion((rot.x, rot.y, rot.z, rot.w))
+			pos_list[ix*len_key+ix_key] = loc
+			sca_list[ix*len_key+ix_key] = sca
+			rot_list[ix*len_key+ix_key] = rot
+	return [time_list, pos_list, sca_list, rot_list]
+
+#
+
+#
 
 ####################################################################################################
 # armature functions
@@ -97,13 +217,17 @@ def set_active_action(action_in, o_arma):
 
 # data bone hierarchy
 def data_hierarchy(arma):
+	# if rigify use
+	if global_var.is_rigify:
+		return data_hierarchy_rigify(arma)
+	#
 	rt_list = []
 	for index, item in enumerate(arma.bones):
 		index_parent = get_index(item.parent, arma.bones)
 		# check
 		if index_parent >= index:
-			print("--WARNING!--")
-			print("imm export error: hierarchy wrong, bone's index must be less than its parent's index")
+			print("--ATTENTION!--")
+			print("imm export error: hierarchy wrong, child's index bigger than parent's")
 			return
 		rt_list.append([index, index_parent])
 	return rt_list
@@ -115,6 +239,11 @@ def data_offset(o_mesh, o_arma, arma):
 	# all world transform should be zero
 	# mesh_to arma shold be identity matrix
 	# this step is unnecessary, but check if the world fransform is exists (export error)
+	#
+	# if rigify use
+	if global_var.is_rigify:
+		return data_offset_rigify(o_mesh, o_arma, arma)
+	#
 	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
@@ -126,6 +255,10 @@ def data_offset(o_mesh, o_arma, arma):
 
 # data anim clip, time position scale rotation
 def data_anim_clip(scene, action, o_arma):
+	# if rigify use
+	if global_var.is_rigify:
+		return data_anim_clip_rigify(scene, action, o_arma)
+	#
 	set_active_action(action, o_arma)
 	time_list = []
 	pos_list = []
@@ -271,9 +404,9 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 	for action in coll_action:
 		anim_clip = data_anim_clip(scene, action, o_arma)
 		txt_time = number_to_str(anim_clip[0])
-		txt_pos = imm_export.format_vector(anim_clip[1])
-		txt_sca = imm_export.format_vector(anim_clip[2])
-		txt_rot = imm_export.format_vector(anim_clip[3])
+		txt_pos = export_static.format_vector(anim_clip[1])
+		txt_sca = export_static.format_vector(anim_clip[2])
+		txt_rot = export_static.format_vector(anim_clip[3])
 		txt_anim_clip = package_anim_clip(txt_time, txt_pos, txt_sca, txt_rot)	
 		txt_coll_anim_clip.append("AnimationClip "+action.name)
 		txt_coll_anim_clip.append("{")
@@ -292,33 +425,33 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 	for ix in objects_mesh:
 		# arrange vertex accroding uv
 		mesh = bpy.data.objects[ix].data
-		uv, uv_ex_dict, tessface = imm_export.data_uv_and_face(mesh)
+		uv, uv_ex_dict, tessface = export_static.data_uv_and_face(mesh)
 		len_uv = len(uv)
 		# triangle and vertex
-		triangle = imm_export.data_triangle(tessface)
-		position = imm_export.data_position(mesh, len_uv, uv_ex_dict)
-		normal = imm_export.data_normal(mesh, len_uv, uv_ex_dict)
-		tangent = imm_export.data_tangent(len_uv, position, normal, uv, triangle)
+		triangle = export_static.data_triangle(tessface)
+		position = export_static.data_position(mesh, len_uv, uv_ex_dict)
+		normal = export_static.data_normal(mesh, len_uv, uv_ex_dict)
+		tangent = export_static.data_tangent(len_uv, position, normal, uv, triangle)
 		# vertex
-		txt_uv = imm_export.format_vector(uv)
-		txt_position = imm_export.format_vector(position)
-		txt_normal = imm_export.format_vector(normal)
-		txt_tangent = imm_export.format_vector(tangent)
+		txt_uv = export_static.format_vector(uv)
+		txt_position = export_static.format_vector(position)
+		txt_normal = export_static.format_vector(normal)
+		txt_tangent = export_static.format_vector(tangent)
 		# subset
 		sub_vertex_count.append(len_uv)
 		sub_face_count.append(len(triangle))
 		if len(sub_vertex_count) > 1:
 			sub_vertex_start.append(sub_vertex_start[-1]+sub_vertex_count[-2])
 			sub_face_start.append(sub_face_start[-1]+sub_face_count[-2])
-			triangle = imm_export.offset_triangle(triangle, sub_vertex_start[-1])
-		txt_triangle += imm_export.format_triangle(triangle)
+			triangle = export_static.offset_triangle(triangle, sub_vertex_start[-1])
+		txt_triangle += export_static.format_triangle(triangle)
 		# material
-		txt_material += imm_export.txt_matrial(mesh)
+		txt_material += export_static.txt_matrial(mesh)
 		# bone weight and index
 		ble_index_weight = data_ble_index_weight(mesh)
 		ble_index_weight = data_ble_index_weight_add(len_uv, uv_ex_dict, ble_index_weight)
 		txt_ble_index = format_index(ble_index_weight[0])
-		txt_ble_weight = imm_export.format_vector(ble_index_weight[1])
+		txt_ble_weight = export_static.format_vector(ble_index_weight[1])
 		txt_vertex += package_vertex_anim\
 			(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_ble_index, txt_ble_weight)
 	# subset table
@@ -351,8 +484,8 @@ def package_bone_anim(offset, hierarchy, coll_anim_clip):
 def export_m3d_anim():
 	time_start = datetime.datetime.now()
 	# object
-	objects_arma = imm_export.find_first_object("ARMATURE")
-	objects_mesh = imm_export.find_mesh()
+	objects_arma = export_static.find_first_object("ARMATURE")
+	objects_mesh = export_static.find_mesh()
 	scene = bpy.data.scenes[0]
 	coll_action = bpy.data.actions
 	# check
@@ -373,11 +506,11 @@ def export_m3d_anim():
 	txt_vertex, txt_triangle, txt_subset, txt_material, \
 		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip = \
 		package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
-	txt_m3d = imm_export.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
+	txt_m3d = export_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
 		[len_bones, len_anim_clip])
 	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
 	export = global_var.export_dir+"export_anim.txt"
-	imm_export.write_text(export, txt_m3d)
+	export_static.write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	# print
 	print("-----------------------")
@@ -387,5 +520,6 @@ def export_m3d_anim():
 	print("export dir:\t"+global_var.export_dir)
 	print("spend time:\t"+str(time_spend.total_seconds())+" seconds")
 
-# export
+# end
+# anim
 export_m3d_anim()
