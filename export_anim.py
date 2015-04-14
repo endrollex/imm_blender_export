@@ -10,7 +10,7 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+sys.path.append("D:\\Dropbox\\imm_blender_export\\")
 import export_static
 import global_var
 os.system("cls")
@@ -76,6 +76,17 @@ def number_to_str(list_in):
 ####################################################################################################
 ####################################################################################################
 
+# check is rigify
+def is_rigify(o_arma, arma):
+	is_rig = False
+	if (o_arma.name == "rig"):
+		is_rig = True
+	if (len(arma.bones) > 300):
+		is_rig = True
+	else:
+		is_rig = False
+	return is_rig
+
 # read hierarchy form text
 def read_hierarchy_rigify(arma):
 	# build rigify infomation
@@ -109,24 +120,25 @@ def read_hierarchy_rigify(arma):
 
 # data bone hierarchy
 def data_hierarchy_rigify(arma):
+	global rigify_list
+	global rigify_dict
 	global rigify_to_org
 	rt_list = []
-	for index, item in enumerate(arma.bones):
-		index_parent = get_index(item.parent, arma.bones)
+	for index, org_bone in enumerate(rigify_list):
+		index_parent = get_index(arma.bones[rigify_dict[org_bone]].parent, arma.bones)
 		# check
+		if index_parent in rigify_to_org or index_parent == -1:
+			if index_parent != -1:
+				index_parent = rigify_to_org[index_parent]
+		else:
+			print("--ATTENTION!--")
+			print("imm export error: hierarchy wrong")
+			return
 		if index_parent >= index:
 			print("--ATTENTION!--")
 			print("imm export error: hierarchy wrong, child's index bigger than parent's")
 			return
-		if index in rigify_to_org:
-			if index_parent != -1:
-				if index_parent not in rigify_to_org:
-					print("--ATTENTION!--")
-					print("imm export error: hierarchy wrong")
-					return
-				index_parent = rigify_to_org[index_parent]
-			rt_list.append([rigify_to_org[index], index_parent])
-		#
+		rt_list.append([index, index_parent])
 	return rt_list
 
 # data offset transformation, mesh to armature
@@ -195,10 +207,15 @@ def data_anim_clip_rigify(scene, action, o_arma):
 def reassign_weight_rigify(vert_group, redirect_group):
 	re_list = []
 	for group in vert_group:
-		for re in re_list:
+		get_ix = -1
+		for ix, re in enumerate(re_list):
 			if re[0] == redirect_group[group.group]:
-				continue
-		re_list.append([redirect_group[group.group], group.weight])
+				get_ix = ix
+		if get_ix == -1:
+			re_list.append([redirect_group[group.group], group.weight])
+		else:
+			# if same bone, add weight
+			re_list[get_ix][1] += group.weight
 	#
 	re_list = sorted(re_list, key=lambda student: student[1], reverse=True)
 	len_list = len(re_list)
@@ -217,7 +234,7 @@ def reassign_weight_rigify(vert_group, redirect_group):
 			re_list.append([0, 0.0])
 	#
 	re_list = []
-	re_list.append([2, 1.0])
+	re_list.append([1, 1.0])
 	re_list.append([0, 0.0])
 	re_list.append([0, 0.0])
 	re_list.append([0, 0.0])
@@ -332,7 +349,7 @@ def data_anim_clip(scene, action, o_arma):
 			fcurve_ix = ix_fcu
 	# fps -> second
 	frame_time = 1/scene.render.fps
-	cnt_bone = 0
+	cnt_bone = len(o_arma.pose.bones)
 	# time
 	for bone in o_arma.pose.bones:
 		for key in action.fcurves[fcurve_ix].keyframe_points:
@@ -340,7 +357,6 @@ def data_anim_clip(scene, action, o_arma):
 			pos_list.append(None)
 			sca_list.append(None)
 			rot_list.append(None)
-		cnt_bone += 1
 	# position scale rotation
 	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
 		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
@@ -377,6 +393,7 @@ def reassign_weight(vert_group):
 	if len_list < 4:
 		for ix in range(0, 4-len_list):
 			re_list.append([0, 0.0])
+	#
 	return re_list
 
 # data blender indices and weights
@@ -562,13 +579,16 @@ def export_m3d_anim():
 	# object
 	o_arma = bpy.data.objects[objects_arma[0]]
 	arma = o_arma.data
+	# if rigify use
+	global rigify_list
+	if not global_var.is_rigify:
+		global_var.is_rigify = is_rigify(o_arma, arma)
 	# package
-	len_bones = len(arma.bones)
 	txt_vertex, txt_triangle, txt_subset, txt_material, \
 		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip = \
 		package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
 	# if rigify use
-	global rigify_list
+	len_bones = len(arma.bones)
 	if global_var.is_rigify:
 		len_bones = len(rigify_list)
 	#
@@ -583,6 +603,7 @@ def export_m3d_anim():
 	print("M3D Export (Animation):")
 	print("-----------------------")
 	print("left hand:\t"+str(global_var.is_left_hand))
+	print("is rigify:\t"+str(global_var.is_rigify))
 	print("export dir:\t"+global_var.export_dir)
 	print("spend time:\t"+str(time_spend.total_seconds())+" seconds")
 

@@ -11,7 +11,7 @@ import math
 import mathutils
 import datetime
 import sys
-sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+sys.path.append("D:\\Dropbox\\imm_blender_export\\")
 import global_var
 #os.system("cls")
 
@@ -93,7 +93,7 @@ def find_mesh():
 	obj_list = []
 	for ix, obj in enumerate(bpy.data.objects):
 		if obj.type == "MESH":
-			mesh = mesh = bpy.data.objects[ix].data
+			mesh = bpy.data.objects[ix].data
 			calc_tess(mesh)
 			if len(mesh.uv_textures) != 0 and not obj.hide:
 				obj_list.append(ix)
