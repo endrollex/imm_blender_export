@@ -14,7 +14,7 @@ import export_anim
 #os.system("cls")
 
 # static
-#export_static.export_m3d()
+export_static.export_m3d()
 
 # anim
-export_anim.export_m3d_anim()
+#export_anim.export_m3d_anim()

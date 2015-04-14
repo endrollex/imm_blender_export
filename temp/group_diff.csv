@@ -1,0 +1,100 @@
+1,root,[ MISMATCH ]
+1,DEF-hips
+1,DEF-spine
+1,DEF-chest
+1,DEF-neck
+1,DEF-head
+1,DEF-shoulder.L
+1,DEF-upper_arm.L,[ MISMATCH ]
+1,DEF-forearm.L,[ MISMATCH ]
+1,DEF-hand.L
+1,DEF-palm.01.L
+1,DEF-f_index.01.L,[ MISMATCH ]
+1,DEF-f_index.02.L
+1,DEF-f_index.03.L
+1,DEF-thumb.01.L,[ MISMATCH ]
+1,DEF-thumb.02.L
+1,DEF-thumb.03.L
+1,DEF-palm.02.L
+1,DEF-f_middle.01.L,[ MISMATCH ]
+1,DEF-f_middle.02.L
+1,DEF-f_middle.03.L
+1,DEF-palm.03.L
+1,DEF-f_ring.01.L,[ MISMATCH ]
+1,DEF-f_ring.02.L
+1,DEF-f_ring.03.L
+1,DEF-palm.04.L
+1,DEF-f_pinky.01.L,[ MISMATCH ]
+1,DEF-f_pinky.02.L
+1,DEF-f_pinky.03.L
+1,DEF-shoulder.R
+1,DEF-upper_arm.R,[ MISMATCH ]
+1,DEF-forearm.R,[ MISMATCH ]
+1,DEF-hand.R
+1,DEF-palm.01.R
+1,DEF-f_index.01.R,[ MISMATCH ]
+1,DEF-f_index.02.R
+1,DEF-f_index.03.R
+1,DEF-thumb.01.R,[ MISMATCH ]
+1,DEF-thumb.02.R
+1,DEF-thumb.03.R
+1,DEF-palm.02.R
+1,DEF-f_middle.01.R,[ MISMATCH ]
+1,DEF-f_middle.02.R
+1,DEF-f_middle.03.R
+1,DEF-palm.03.R
+1,DEF-f_ring.01.R,[ MISMATCH ]
+1,DEF-f_ring.02.R
+1,DEF-f_ring.03.R
+1,DEF-palm.04.R
+1,DEF-f_pinky.01.R,[ MISMATCH ]
+1,DEF-f_pinky.02.R
+1,DEF-f_pinky.03.R
+1,DEF-thigh.L,[ MISMATCH ]
+1,DEF-shin.L,[ MISMATCH ]
+1,DEF-foot.L
+1,DEF-toe.L
+1,DEF-heel.L,[ MISMATCH ]
+1,DEF-heel.02.L,[ MISMATCH ]
+1,DEF-thigh.R,[ MISMATCH ]
+1,DEF-shin.R,[ MISMATCH ]
+1,DEF-foot.R
+1,DEF-toe.R
+1,DEF-heel.R,[ MISMATCH ]
+1,DEF-heel.02.R,[ MISMATCH ]
+[ MISMATCH ],DEF-f_index.01.L.02
+[ MISMATCH ],DEF-thumb.01.L.02
+[ MISMATCH ],DEF-f_index.01.L.01
+[ MISMATCH ],DEF-thumb.01.L.01
+[ MISMATCH ],DEF-f_middle.01.L.02
+[ MISMATCH ],DEF-f_middle.01.L.01
+[ MISMATCH ],DEF-f_ring.01.L.02
+[ MISMATCH ],DEF-f_ring.01.L.01
+[ MISMATCH ],DEF-f_pinky.01.L.02
+[ MISMATCH ],DEF-f_pinky.01.L.01
+[ MISMATCH ],DEF-forearm.02.L
+[ MISMATCH ],DEF-forearm.01.L
+[ MISMATCH ],DEF-upper_arm.02.L
+[ MISMATCH ],DEF-f_index.01.R.02
+[ MISMATCH ],DEF-thumb.01.R.02
+[ MISMATCH ],DEF-f_index.01.R.01
+[ MISMATCH ],DEF-thumb.01.R.01
+[ MISMATCH ],DEF-f_middle.01.R.02
+[ MISMATCH ],DEF-f_middle.01.R.01
+[ MISMATCH ],DEF-f_ring.01.R.02
+[ MISMATCH ],DEF-f_ring.01.R.01
+[ MISMATCH ],DEF-f_pinky.01.R.02
+[ MISMATCH ],DEF-f_pinky.01.R.01
+[ MISMATCH ],DEF-forearm.02.R
+[ MISMATCH ],DEF-forearm.01.R
+[ MISMATCH ],DEF-upper_arm.02.R
+[ MISMATCH ],DEF-shin.02.L
+[ MISMATCH ],DEF-shin.01.L
+[ MISMATCH ],DEF-thigh.02.L
+[ MISMATCH ],DEF-shin.02.R
+[ MISMATCH ],DEF-shin.01.R
+[ MISMATCH ],DEF-thigh.02.R
+[ MISMATCH ],DEF-upper_arm.01.R
+[ MISMATCH ],DEF-upper_arm.01.L
+[ MISMATCH ],DEF-thigh.01.L
+[ MISMATCH ],DEF-thigh.01.R

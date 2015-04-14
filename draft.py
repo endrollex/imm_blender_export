@@ -48,12 +48,13 @@ for index, gro in enumerate(o_mesh.vertex_groups):
 	#print(index, gro.name)
 '''
 
+'''
 # read bone hierarchy text
 rigify_list = []
 rigify_dict = {}
 rigify_dict_inv = {}
 #
-read_path = global_var.export_dir+"rigify_ORG.csv"
+read_path = global_var.export_dir+"rigify_hierarchy.csv"
 f = open(read_path)
 rigify_list = f.read().splitlines()
 f.close()
@@ -72,4 +73,15 @@ for (k, v) in rigify_dict.items():
     print(v, k)
 print(len(rigify_dict))
 print(len(rigify_dict_inv))
+'''
 
+# read group map
+rigify_group = []
+read_path = global_var.export_dir+"rigify_group_map.csv"
+f = open(read_path)
+temp = f.read().splitlines()
+f.close()
+for line in temp:
+	rigify_group.append(line.split(","))
+for gro_map in rigify_group:
+		print(gro_map[0], gro_map[1])

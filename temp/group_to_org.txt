@@ -35,14 +35,8 @@ DEF-shin.01.L
 DEF-shin.02.L
 
 ORG-heel.L
+NULL
 
 ORG-heel.02.L
-
-
-
-
-
-
-
-
+NULL
 

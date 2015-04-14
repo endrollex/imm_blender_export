@@ -19,8 +19,8 @@ os.system("cls")
 fcurve_keys_max = 0
 rigify_list = []
 rigify_dict = {}
-rigify_dict_inv = {}
-rigify_rig_org = {}
+rigify_to_org = {}
+rigify_group = {}
 
 ####################################################################################################
 # format functions
@@ -78,21 +78,29 @@ def number_to_str(list_in):
 
 # read hierarchy form text
 def read_hierarchy_rigify(arma):
+	# build rigify infomation
 	global rigify_list
 	global rigify_dict
-	global rigify_dict_inv
-	global rigify_rig_org
-	#
-	read_path = global_var.export_dir+"rigify_ORG.csv"
+	global rigify_to_org
+	global rigify_group
+	# hierarchy
+	read_path = global_var.export_dir+"rigify_hierarchy.csv"
 	f = open(read_path)
 	rigify_list = f.read().splitlines()
 	f.close()
-	#
 	for index, bone in enumerate(arma.bones):
 		if bone.name in rigify_list:
 			rigify_dict[bone.name] = index
-			rigify_dict_inv[index] = bone.name
-			rigify_rig_org[index] = rigify_list.index(bone.name)
+			rigify_to_org[index] = rigify_list.index(bone.name)
+	# group
+	read_path = global_var.export_dir+"rigify_group_map.csv"
+	f = open(read_path)
+	temp = f.read().splitlines()
+	f.close()
+	temp_group = []
+	for line in temp:
+		temp_group = line.split(",")
+		rigify_group[temp_group[0]] = rigify_list.index(temp_group[1])
 	#check
 	check = False
 	if len(rigify_list) == len(rigify_dict):
@@ -101,7 +109,7 @@ def read_hierarchy_rigify(arma):
 
 # data bone hierarchy
 def data_hierarchy_rigify(arma):
-	global rigify_rig_org
+	global rigify_to_org
 	rt_list = []
 	for index, item in enumerate(arma.bones):
 		index_parent = get_index(item.parent, arma.bones)
@@ -110,14 +118,14 @@ def data_hierarchy_rigify(arma):
 			print("--ATTENTION!--")
 			print("imm export error: hierarchy wrong, child's index bigger than parent's")
 			return
-		if index in rigify_rig_org:
+		if index in rigify_to_org:
 			if index_parent != -1:
-				if index_parent not in rigify_rig_org:
+				if index_parent not in rigify_to_org:
 					print("--ATTENTION!--")
 					print("imm export error: hierarchy wrong")
 					return
-				index_parent = rigify_rig_org[index_parent]
-			rt_list.append([rigify_rig_org[index], index_parent])
+				index_parent = rigify_to_org[index_parent]
+			rt_list.append([rigify_to_org[index], index_parent])
 		#
 	return rt_list
 
@@ -128,11 +136,12 @@ def data_offset_rigify(o_mesh, o_arma, arma):
 		print("--ATTENTION!--")
 		print("imm export error: rigify hierarchy read error")
 		return
-	global rigify_rig_org
+	global rigify_list
+	global rigify_dict
 	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
-	for (k, v) in rigify_rig_org.items():
-		mat = (mesh_to_arma*arma.bones[k].matrix_local).transposed()
+	for org_bone in rigify_list:
+		mat = (mesh_to_arma*arma.bones[rigify_dict[org_bone]].matrix_local).transposed()
 		mat = to_left_matrix(mat)
 		mat = mat.inverted()
 		rt_list.append(mat)
@@ -140,7 +149,8 @@ def data_offset_rigify(o_mesh, o_arma, arma):
 
 # data anim clip, time position scale rotation
 def data_anim_clip_rigify(scene, action, o_arma):
-	global rigify_rig_org
+	global rigify_list
+	global rigify_dict
 	set_active_action(action, o_arma)
 	time_list = []
 	pos_list = []
@@ -157,23 +167,21 @@ def data_anim_clip_rigify(scene, action, o_arma):
 			fcurve_ix = ix_fcu
 	# fps -> second
 	frame_time = 1/scene.render.fps
-	cnt_bone = 0
 	# time
-	for (k, v) in rigify_rig_org.items():
+	for nothing in rigify_list:
 		for key in action.fcurves[fcurve_ix].keyframe_points:
 			time_list.append(key.co[0]*frame_time)
 			pos_list.append(None)
 			sca_list.append(None)
 			rot_list.append(None)
-		cnt_bone += 1
 	# position scale rotation
 	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
 		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
 		scene.frame_set(key.co[0])
 		scene.update
-		for (k, v) in rigify_rig_org.items():
-			ix = v
-			mat_to_p = get_to_parent(o_arma, k).transposed()
+		for index, org_bone in enumerate(rigify_list):
+			ix = index
+			mat_to_p = get_to_parent(o_arma, rigify_dict[org_bone]).transposed()
 			mat_to_p = to_left_matrix(mat_to_p)
 			mat_to_p = mat_to_p.transposed()
 			loc, rot, sca = mat_to_p.decompose()
@@ -183,8 +191,58 @@ def data_anim_clip_rigify(scene, action, o_arma):
 			rot_list[ix*len_key+ix_key] = rot
 	return [time_list, pos_list, sca_list, rot_list]
 
-#
+# reassign weight and index
+def reassign_weight_rigify(vert_group, redirect_group):
+	re_list = []
+	for group in vert_group:
+		for re in re_list:
+			if re[0] == redirect_group[group.group]:
+				continue
+		re_list.append([redirect_group[group.group], group.weight])
+	#
+	re_list = sorted(re_list, key=lambda student: student[1], reverse=True)
+	len_list = len(re_list)
+	if len_list > 4:
+		re_list = re_list[0:4]
+	sum_weight = 0.0
+	for re in re_list:
+		sum_weight += re[1]
+	sum_weight_diff = 1.0-sum_weight
+	# sum_weight should be 1.0, or 0.0 for none influence
+	if sum_weight_diff > 0.01 or sum_weight_diff < 0.01:
+		for re in re_list:
+			re[1] += (re[1]/sum_weight)*sum_weight_diff
+	if len_list < 4:
+		for ix in range(0, 4-len_list):
+			re_list.append([0, 0.0])
+	#
+	re_list = []
+	re_list.append([2, 1.0])
+	re_list.append([0, 0.0])
+	re_list.append([0, 0.0])
+	re_list.append([0, 0.0])
+	#
+	return re_list
 
+# data blender indices and weights
+def data_ble_index_weight_rigify(mesh, o_mesh):
+	global rigify_group
+	# get current group index map to target rigify
+	redirect_group = {}
+	for index, gro in enumerate(o_mesh.vertex_groups):
+		redirect_group[index] = rigify_group[gro.name]
+	#
+	ble_index = []
+	ble_weight = []
+	for vert in mesh.vertices:
+		ble_index.append([])
+		ble_weight.append([])
+		# only use 4 bone per vertex
+		re_group = reassign_weight_rigify(vert.groups, redirect_group)
+		for group in re_group:
+			ble_index[-1].append(group[0])
+			ble_weight[-1].append(group[1])
+	return [ble_index, ble_weight]
 #
 
 ####################################################################################################
@@ -201,7 +259,6 @@ def get_index(item, bpy_data):
 
 # get to parent matrix
 def get_to_parent(o_arma, ix):
-	# test
 	if o_arma.pose.bones[ix].parent == None:
 		return o_arma.pose.bones[ix].matrix
 	to_parent = o_arma.pose.bones[ix].parent.matrix.inverted()*o_arma.pose.bones[ix].matrix
@@ -301,9 +358,9 @@ def data_anim_clip(scene, action, o_arma):
 	return [time_list, pos_list, sca_list, rot_list]
 
 # reassign weight and index
-def reassign_weight(vert_group_in):
+def reassign_weight(vert_group):
 	re_list = []
-	for group in vert_group_in:
+	for group in vert_group:
 		re_list.append([group.group, group.weight])
 	re_list = sorted(re_list, key=lambda student: student[1], reverse=True)
 	len_list = len(re_list)
@@ -323,7 +380,10 @@ def reassign_weight(vert_group_in):
 	return re_list
 
 # data blender indices and weights
-def data_ble_index_weight(mesh):
+def data_ble_index_weight(mesh, o_mesh):
+	# if rigify use
+	if global_var.is_rigify:
+		return data_ble_index_weight_rigify(mesh, o_mesh)
 	ble_index = []
 	ble_weight = []
 	for vert in mesh.vertices:
@@ -424,7 +484,8 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 	# build mesh data
 	for ix in objects_mesh:
 		# arrange vertex accroding uv
-		mesh = bpy.data.objects[ix].data
+		o_mesh = bpy.data.objects[ix]
+		mesh = bpy.data.objects[ix].data		
 		uv, uv_ex_dict, tessface = export_static.data_uv_and_face(mesh)
 		len_uv = len(uv)
 		# triangle and vertex
@@ -448,7 +509,7 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 		# material
 		txt_material += export_static.txt_matrial(mesh)
 		# bone weight and index
-		ble_index_weight = data_ble_index_weight(mesh)
+		ble_index_weight = data_ble_index_weight(mesh, o_mesh)
 		ble_index_weight = data_ble_index_weight_add(len_uv, uv_ex_dict, ble_index_weight)
 		txt_ble_index = format_index(ble_index_weight[0])
 		txt_ble_weight = export_static.format_vector(ble_index_weight[1])
@@ -506,6 +567,11 @@ def export_m3d_anim():
 	txt_vertex, txt_triangle, txt_subset, txt_material, \
 		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip = \
 		package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
+	# if rigify use
+	global rigify_list
+	if global_var.is_rigify:
+		len_bones = len(rigify_list)
+	#
 	txt_m3d = export_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
 		[len_bones, len_anim_clip])
 	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
