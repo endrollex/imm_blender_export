@@ -25,29 +25,33 @@ The project is in development, maybe it can be used for export.
 How to Use:
 -----------
 * Edit sys.path.append() in every .py file, the path is the working directory.
-* Keep in Object Model.
-* Only export mesh object which has UV map.
+  This is a little annoying.
 * Hide object which is not want to export.
-* Exported mesh data is object's local, not world space, all world transform should be zero.
+* Only export mesh object which has UV map.
+* Exported mesh data is object's local, not world space, all world transform should be zero and no scale.
 * Ensure that only one visible armature object in the scene,
   if more than one, the first visible armature will be exported. (animation export situation)
-* Run the script in Blender Text Editor, and open Toggle System Console.
-* This project has been tested with Blender 2.72b.
+* Keep in Object Model.
+* Choose a export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
+  comment the other one.
+* Copy and paste run_script.py to Blender Text Editor, Run Script, and open Toggle System Console.
+* This project has been tested with Blender 2.74.
 
 Known Issues:
 -------------
-* A particular step of tangent data's algorithm sometimes will div by zero, I do not know why, 
+* A particular step of tangent data's algorithm sometimes will div by zero, I do not know why,
   now let this step's result to be 0.0f, it is dirty solution.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
-* If you delete a bone, be sure the Vertex Group is deleted too,
-  because an exported group is not according group name but the index.
 * After export, You may need to manually edit the texture's name or other things.
 
 Note:
 -----
 * Vertex weight will be sorted from large to small,
   sum of weight is 1.0f or 0.0f indicates 1-4 bones or none bone influences this vertex.
+* Rigify has 431 bones, it's too much for a game engine.
+  The script uses 64 ORG-Prefix bones (with a root) to rebuild hierarchy
+  and redirect mesh's weight index to those bones.
 
 License:
 --------

@@ -10,17 +10,20 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import export_static
 import global_var
-os.system("cls")
+#os.system("cls")
 
 # global var
-fcurve_keys_max = 0
-rigify_list = []
-rigify_dict = {}
-rigify_to_org = {}
-rigify_group = {}
+anim_fcurve_keys_max = 0
+anim_len_bones = 0
+anim_arma_list = []
+# rigify
+rig_arma_list = []
+rig_arma_find_old_ix = {}
+rig_old_ix_redirect = {}
+rig_group_map = {}
 
 ####################################################################################################
 # format functions
@@ -77,9 +80,9 @@ def number_to_str(list_in):
 ####################################################################################################
 
 # check is rigify
-def is_rigify(o_arma, arma):
+def is_rigify(arma):
 	is_rig = False
-	if (o_arma.name == "rig"):
+	if (arma.name == "rig"):
 		is_rig = True
 	if (len(arma.bones) > 300):
 		is_rig = True
@@ -90,19 +93,22 @@ def is_rigify(o_arma, arma):
 # read hierarchy form text
 def read_hierarchy_rigify(arma):
 	# build rigify infomation
-	global rigify_list
-	global rigify_dict
-	global rigify_to_org
-	global rigify_group
+	global rig_arma_list
+	global rig_arma_find_old_ix
+	global rig_old_ix_redirect
+	global rig_group_map
+	global anim_len_bones
 	# hierarchy
 	read_path = global_var.export_dir+"rigify_hierarchy.csv"
 	f = open(read_path)
-	rigify_list = f.read().splitlines()
+	rig_arma_list = f.read().splitlines()
 	f.close()
 	for index, bone in enumerate(arma.bones):
-		if bone.name in rigify_list:
-			rigify_dict[bone.name] = index
-			rigify_to_org[index] = rigify_list.index(bone.name)
+		if bone.name in rig_arma_list:
+			rig_arma_find_old_ix[bone.name] = index
+			rig_old_ix_redirect[index] = rig_arma_list.index(bone.name)
+	#
+	anim_len_bones = len(rig_arma_list)
 	# group
 	read_path = global_var.export_dir+"rigify_group_map.csv"
 	f = open(read_path)
@@ -111,49 +117,48 @@ def read_hierarchy_rigify(arma):
 	temp_group = []
 	for line in temp:
 		temp_group = line.split(",")
-		rigify_group[temp_group[0]] = rigify_list.index(temp_group[1])
+		rig_group_map[temp_group[0]] = rig_arma_list.index(temp_group[1])
 	#check
 	check = False
-	if len(rigify_list) == len(rigify_dict):
+	if len(rig_arma_list) == len(rig_arma_find_old_ix):
 		check = True
+	if not check:
+		print("--ATTENTION!--")
+		print("imm export error: rigify hierarchy read error")
+		assert(False)
 	return check
 
 # data bone hierarchy
 def data_hierarchy_rigify(arma):
-	global rigify_list
-	global rigify_dict
-	global rigify_to_org
+	global rig_arma_list
+	global rig_arma_find_old_ix
+	global rig_old_ix_redirect
 	rt_list = []
-	for index, org_bone in enumerate(rigify_list):
-		index_parent = get_index(arma.bones[rigify_dict[org_bone]].parent, arma.bones)
+	for index, org_bone in enumerate(rig_arma_list):
+		index_parent = get_index(arma.bones[rig_arma_find_old_ix[org_bone]].parent, arma.bones)
 		# check
-		if index_parent in rigify_to_org or index_parent == -1:
+		if index_parent in rig_old_ix_redirect or index_parent == -1:
 			if index_parent != -1:
-				index_parent = rigify_to_org[index_parent]
+				index_parent = rig_old_ix_redirect[index_parent]
 		else:
 			print("--ATTENTION!--")
 			print("imm export error: hierarchy wrong")
-			return
+			assert(False)
 		if index_parent >= index:
 			print("--ATTENTION!--")
 			print("imm export error: hierarchy wrong, child's index bigger than parent's")
-			return
+			assert(False)
 		rt_list.append([index, index_parent])
 	return rt_list
 
 # data offset transformation, mesh to armature
 def data_offset_rigify(o_mesh, o_arma, arma):
-	check = read_hierarchy_rigify(arma)
-	if not check:
-		print("--ATTENTION!--")
-		print("imm export error: rigify hierarchy read error")
-		return
-	global rigify_list
-	global rigify_dict
+	global rig_arma_list
+	global rig_arma_find_old_ix
 	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
-	for org_bone in rigify_list:
-		mat = (mesh_to_arma*arma.bones[rigify_dict[org_bone]].matrix_local).transposed()
+	for org_bone in rig_arma_list:
+		mat = (mesh_to_arma*arma.bones[rig_arma_find_old_ix[org_bone]].matrix_local).transposed()
 		mat = to_left_matrix(mat)
 		mat = mat.inverted()
 		rt_list.append(mat)
@@ -161,26 +166,26 @@ def data_offset_rigify(o_mesh, o_arma, arma):
 
 # data anim clip, time position scale rotation
 def data_anim_clip_rigify(scene, action, o_arma):
-	global rigify_list
-	global rigify_dict
+	global rig_arma_list
+	global rig_arma_find_old_ix
 	set_active_action(action, o_arma)
 	time_list = []
 	pos_list = []
 	sca_list = []
 	rot_list = []
 	# find completed framekeys in fcurves
-	global fcurve_keys_max
-	fcurve_keys_max = 0
+	global anim_fcurve_keys_max
+	anim_fcurve_keys_max = 0
 	fcurve_ix = 0
 	for ix_fcu in range(0, len(action.fcurves)):
 		len_fcurve_keys = len(action.fcurves[ix_fcu].keyframe_points)
-		if len_fcurve_keys > fcurve_keys_max:
-			fcurve_keys_max = len_fcurve_keys
+		if len_fcurve_keys > anim_fcurve_keys_max:
+			anim_fcurve_keys_max = len_fcurve_keys
 			fcurve_ix = ix_fcu
 	# fps -> second
 	frame_time = 1/scene.render.fps
 	# time
-	for nothing in rigify_list:
+	for nothing in rig_arma_list:
 		for key in action.fcurves[fcurve_ix].keyframe_points:
 			time_list.append(key.co[0]*frame_time)
 			pos_list.append(None)
@@ -191,9 +196,9 @@ def data_anim_clip_rigify(scene, action, o_arma):
 		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
 		scene.frame_set(key.co[0])
 		scene.update
-		for index, org_bone in enumerate(rigify_list):
+		for index, org_bone in enumerate(rig_arma_list):
 			ix = index
-			mat_to_p = get_to_parent(o_arma, rigify_dict[org_bone]).transposed()
+			mat_to_p = get_to_parent(o_arma.pose.bones.get(org_bone)).transposed()
 			mat_to_p = to_left_matrix(mat_to_p)
 			mat_to_p = mat_to_p.transposed()
 			loc, rot, sca = mat_to_p.decompose()
@@ -233,21 +238,15 @@ def reassign_weight_rigify(vert_group, redirect_group):
 		for ix in range(0, 4-len_list):
 			re_list.append([0, 0.0])
 	#
-	re_list = []
-	re_list.append([1, 1.0])
-	re_list.append([0, 0.0])
-	re_list.append([0, 0.0])
-	re_list.append([0, 0.0])
-	#
 	return re_list
 
 # data blender indices and weights
 def data_ble_index_weight_rigify(mesh, o_mesh):
-	global rigify_group
+	global rig_group_map
 	# get current group index map to target rigify
 	redirect_group = {}
 	for index, gro in enumerate(o_mesh.vertex_groups):
-		redirect_group[index] = rigify_group[gro.name]
+		redirect_group[index] = rig_group_map[gro.name]
 	#
 	ble_index = []
 	ble_weight = []
@@ -267,6 +266,14 @@ def data_ble_index_weight_rigify(mesh, o_mesh):
 ####################################################################################################
 ####################################################################################################
 
+# build armature info
+def build_arma_info(o_arma, arma):
+	global anim_len_bones
+	global anim_arma_list
+	anim_len_bones = len(arma.bones)
+	for bone in arma.bones:
+		anim_arma_list.append(bone.name)
+
 # get index
 def get_index(item, bpy_data):
 	for index, item_e in enumerate(bpy_data):
@@ -275,10 +282,10 @@ def get_index(item, bpy_data):
 	return -1
 
 # get to parent matrix
-def get_to_parent(o_arma, ix):
-	if o_arma.pose.bones[ix].parent == None:
-		return o_arma.pose.bones[ix].matrix
-	to_parent = o_arma.pose.bones[ix].parent.matrix.inverted()*o_arma.pose.bones[ix].matrix
+def get_to_parent(pose_bone):
+	if pose_bone.parent == None:
+		return pose_bone.matrix
+	to_parent = pose_bone.parent.matrix.inverted()*pose_bone.matrix
 	return to_parent
 
 # set_active_action
@@ -302,7 +309,7 @@ def data_hierarchy(arma):
 		if index_parent >= index:
 			print("--ATTENTION!--")
 			print("imm export error: hierarchy wrong, child's index bigger than parent's")
-			return
+			assert(False)
 		rt_list.append([index, index_parent])
 	return rt_list
 
@@ -339,17 +346,16 @@ def data_anim_clip(scene, action, o_arma):
 	sca_list = []
 	rot_list = []
 	# find completed framekeys in fcurves
-	global fcurve_keys_max
-	fcurve_keys_max = 0
+	global anim_fcurve_keys_max
+	anim_fcurve_keys_max = 0
 	fcurve_ix = 0
 	for ix_fcu in range(0, len(action.fcurves)):
 		len_fcurve_keys = len(action.fcurves[ix_fcu].keyframe_points)
-		if len_fcurve_keys > fcurve_keys_max:
-			fcurve_keys_max = len_fcurve_keys
+		if len_fcurve_keys > anim_fcurve_keys_max:
+			anim_fcurve_keys_max = len_fcurve_keys
 			fcurve_ix = ix_fcu
 	# fps -> second
 	frame_time = 1/scene.render.fps
-	cnt_bone = len(o_arma.pose.bones)
 	# time
 	for bone in o_arma.pose.bones:
 		for key in action.fcurves[fcurve_ix].keyframe_points:
@@ -362,8 +368,8 @@ def data_anim_clip(scene, action, o_arma):
 		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
 		scene.frame_set(key.co[0])
 		scene.update
-		for ix in range(0, cnt_bone):
-			mat_to_p = get_to_parent(o_arma, ix).transposed()
+		for ix, bone in enumerate(o_arma.data.bones):
+			mat_to_p = get_to_parent(o_arma.pose.bones.get(bone.name)).transposed()
 			mat_to_p = to_left_matrix(mat_to_p)
 			mat_to_p = mat_to_p.transposed()
 			loc, rot, sca = mat_to_p.decompose()
@@ -374,10 +380,10 @@ def data_anim_clip(scene, action, o_arma):
 	return [time_list, pos_list, sca_list, rot_list]
 
 # reassign weight and index
-def reassign_weight(vert_group):
+def reassign_weight(vert_group, redirect_group):
 	re_list = []
 	for group in vert_group:
-		re_list.append([group.group, group.weight])
+		re_list.append([redirect_group[group.group], group.weight])
 	re_list = sorted(re_list, key=lambda student: student[1], reverse=True)
 	len_list = len(re_list)
 	if len_list > 4:
@@ -401,13 +407,23 @@ def data_ble_index_weight(mesh, o_mesh):
 	# if rigify use
 	if global_var.is_rigify:
 		return data_ble_index_weight_rigify(mesh, o_mesh)
+	# get current group index map to armatrue index
+	global anim_arma_list
+	redirect_group = {}
+	for index, gro in enumerate(o_mesh.vertex_groups):
+		if gro.name not in anim_arma_list:
+			print("--ATTENTION!--")
+			print("imm export error: vertex group name not find in armature")
+			assert(False)
+		redirect_group[index] = anim_arma_list.index(gro.name)
+	#
 	ble_index = []
 	ble_weight = []
 	for vert in mesh.vertices:
 		ble_index.append([])
 		ble_weight.append([])
 		# only use 4 bone per vertex
-		re_group = reassign_weight(vert.groups)
+		re_group = reassign_weight(vert.groups, redirect_group)
 		for group in re_group:
 			ble_index[-1].append(group[0])
 			ble_weight[-1].append(group[1])
@@ -442,14 +458,14 @@ def package_offset(list_in):
 # package time position scale rotation
 def package_anim_clip(txt_time, txt_pos, txt_sca, txt_rot):
 	rt_list = []
-	global fcurve_keys_max
-	if fcurve_keys_max == 0:
+	global anim_fcurve_keys_max
+	if anim_fcurve_keys_max == 0:
 		print("imm export error: keyframes no date")
 	for ix in range(0, len(txt_time)):
-		if ix%fcurve_keys_max == 0:
-			rt_list.append("B"+str(int(ix/fcurve_keys_max))+" #K: "+str(fcurve_keys_max)+" {")
+		if ix%anim_fcurve_keys_max == 0:
+			rt_list.append("B"+str(int(ix/anim_fcurve_keys_max))+" #K: "+str(anim_fcurve_keys_max)+" {")
 		rt_list.append("T: "+txt_time[ix]+" P: "+txt_pos[ix]+" S: "+txt_sca[ix]+" Q: "+txt_rot[ix])
-		if (ix-fcurve_keys_max+1)%fcurve_keys_max == 0:
+		if (ix-anim_fcurve_keys_max+1)%anim_fcurve_keys_max == 0:
 			rt_list.append("}")
 	return rt_list
 
@@ -579,21 +595,19 @@ def export_m3d_anim():
 	# object
 	o_arma = bpy.data.objects[objects_arma[0]]
 	arma = o_arma.data
+	build_arma_info(o_arma, arma)
 	# if rigify use
-	global rigify_list
 	if not global_var.is_rigify:
-		global_var.is_rigify = is_rigify(o_arma, arma)
+		global_var.is_rigify = is_rigify(arma)
+	if global_var.is_rigify:
+		read_hierarchy_rigify(arma)
+	global anim_len_bones
 	# package
 	txt_vertex, txt_triangle, txt_subset, txt_material, \
 		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip = \
 		package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
-	# if rigify use
-	len_bones = len(arma.bones)
-	if global_var.is_rigify:
-		len_bones = len(rigify_list)
-	#
 	txt_m3d = export_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
-		[len_bones, len_anim_clip])
+		[anim_len_bones, len_anim_clip])
 	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
 	export = global_var.export_dir+"export_anim.txt"
 	export_static.write_text(export, txt_m3d)
@@ -609,4 +623,4 @@ def export_m3d_anim():
 
 # end
 # anim
-export_m3d_anim()
+#export_m3d_anim()

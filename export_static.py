@@ -11,7 +11,7 @@ import math
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import global_var
 #os.system("cls")
 
@@ -171,6 +171,7 @@ def data_uv_and_face(mesh):
 		if (len(t)) == 0:
 			print("--ATTENTION!--")
 			print("imm export error: uv wrong, maybe has single vertex")
+			assert(False)
 		uv_list.append(t[0])
 	return [uv_list, uv_ex_dict, tessface_list]
 

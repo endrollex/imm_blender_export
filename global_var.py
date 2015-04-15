@@ -7,6 +7,7 @@
 #
 
 # setting var
-export_dir = "D:\\Dropbox\\imm_blender_export\\"
+export_dir = "C:\\Dropbox\\imm_blender_export\\"
 is_left_hand = True
+# is_rigify will auto check if rigify is using
 is_rigify = False
