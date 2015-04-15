@@ -24,16 +24,16 @@ The project is in development, maybe it can be used for export.
 
 How to Use:
 -----------
-* Edit sys.path.append() in every .py file, the path is the working directory.
+* Edit `sys.path.append(path)` in every python file, the path is the working directory.
   This is a little annoying.
 * Hide object which is not want to export.
 * Only export mesh object which has UV map.
-* Exported mesh data is object's local, not world space, all world transform should be zero and no scale.
-* Ensure that only one visible armature object in the scene,
-  if more than one, the first visible armature will be exported. (animation export situation)
+* Exported data is object's local, not world space, all world transform should be zero and no scale.
+* If have two armatrue, the first visible armature will be exported. (animation export situation)
 * Keep in Object Model.
-* Choose a export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
-  comment the other one.
+* Edit run_script.py,
+  choose a export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
+  let the other one be comment.
 * Copy and paste run_script.py to Blender Text Editor, Run Script, and open Toggle System Console.
 * This project has been tested with Blender 2.74.
 
@@ -50,7 +50,7 @@ Note:
 * Vertex weight will be sorted from large to small,
   sum of weight is 1.0f or 0.0f indicates 1-4 bones or none bone influences this vertex.
 * Rigify has 431 bones, it's too much for a game engine.
-  The script uses 64 ORG-Prefix bones (with a root) to rebuild hierarchy
+  The script use 64 ORG-Prefix bones (with a root) to rebuild hierarchy
   and redirect mesh's weight index to those bones.
 
 License:
