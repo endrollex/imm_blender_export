@@ -215,12 +215,13 @@ def reassign_weight_rigify(vert_group, redirect_group):
 		get_ix = -1
 		for ix, re in enumerate(re_list):
 			if re[0] == redirect_group[group.group]:
-				get_ix = ix
+				if group.weight > re[1]:
+					get_ix = ix
 		if get_ix == -1:
 			re_list.append([redirect_group[group.group], group.weight])
 		else:
-			# if same bone, add weight
-			re_list[get_ix][1] += group.weight
+			# if same bone, re-calclate weight
+			re_list[get_ix][1] = group.weight
 	#
 	re_list = sorted(re_list, key=lambda student: student[1], reverse=True)
 	len_list = len(re_list)

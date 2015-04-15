@@ -49,7 +49,7 @@ Note:
 -----
 * Vertex weight will be sorted from large to small,
   sum of weight is 1.0f or 0.0f indicates 1-4 bones or none bone influences this vertex.
-* Rigify has 431 bones, it's too much for a game engine.
+* Rigify has 431 bones (Version 0.4), it's too much for a game engine.
   The script use 64 ORG-Prefix bones (with a root) to rebuild hierarchy
   and redirect mesh's weight index to those bones.
 
