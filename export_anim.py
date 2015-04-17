@@ -10,7 +10,7 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+sys.path.append("D:\\Dropbox\\imm_blender_export\\")
 import export_static
 import global_var
 #os.system("cls")
@@ -316,11 +316,11 @@ def data_hierarchy(arma):
 
 # data offset transformation, mesh to armature
 def data_offset(o_mesh, o_arma, arma):
-	# if scale is not 1.0, offset matrix will be wrong
-	# because blender has applied the armaure scale to the child mesh
-	# all world transform should be zero
-	# mesh_to arma shold be identity matrix
-	# this step is unnecessary, but check if the world fransform is exists (export error)
+	# all world transform should be zero and no scale.
+	# otherwise mesh_to_arma matrix will be double influence to child mesh
+	# because child mesh already has been modified by parent
+	# thus mesh_to_arma shold be identity matrix
+	# this step is unnecessary, but check if the world fransform is zero and no scale
 	#
 	# if rigify use
 	if global_var.is_rigify:
