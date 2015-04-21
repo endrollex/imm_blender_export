@@ -17,24 +17,31 @@ Files Explanation:
 * **export_anim.py**: Export animation data to text.
 * **global_var.py**: Global variables.
 * **run_script.py**: Run script.
+* **rigify_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
+* **rigify_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
 
 In Development:
 ---------------
-The project is in development, maybe it can be used for export.
+The project is in development, maybe it can be used for exporting.
+
+Export Limits:
+--------------
+* Exporting mesh objects must have UV map.
+* Exported data is object's local, not world space, all world transform should be zero and no scale.
+* Only export skeletal animation data, not include physics simulation, shape keys.
+* If have two armatrues, only the first visible armature will be exported. (animation export situation)
 
 How to Use:
 -----------
 * Edit `sys.path.append(path)` in every python file, the path is the working directory.
   This is a little annoying.
 * Hide object which is not want to export.
-* Only export mesh object which has UV map.
-* Exported data is object's local, not world space, all world transform should be zero and no scale.
-* If have two armatrue, the first visible armature will be exported. (animation export situation)
 * Keep in Object Model.
 * Edit run_script.py,
   choose a export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
   let the other one be comment.
 * Copy and paste run_script.py to Blender Text Editor, Run Script, and open Toggle System Console.
+* After export, You may need to manually edit the texture map's name in Materials part.
 * This project has been tested with Blender 2.74.
 
 Known Issues:
@@ -43,7 +50,6 @@ Known Issues:
   now let this step's result to be 0.0f, it is dirty solution.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
-* After export, You may need to manually edit the texture's name or other things.
 
 Note:
 -----
@@ -52,6 +58,7 @@ Note:
 * Rigify has 431 bones (Version 0.4), it's too much for a game engine.
   The script use 64 ORG-Prefix bones (with a root) to rebuild hierarchy
   and redirect mesh's weight index to those bones.
+  If you have bones different from default rigify, edit rigify_*.csv files for adjust.
 
 License:
 --------

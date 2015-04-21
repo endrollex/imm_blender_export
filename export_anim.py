@@ -232,6 +232,7 @@ def reassign_weight_rigify(vert_group, redirect_group):
 		sum_weight += re[1]
 	sum_weight_diff = 1.0-sum_weight
 	# sum_weight should be 1.0, or 0.0 for none influence
+	# normalize
 	if sum_weight_diff > 0.01 or sum_weight_diff < 0.01:
 		for re in re_list:
 			re[1] += (re[1]/sum_weight)*sum_weight_diff
@@ -394,6 +395,7 @@ def reassign_weight(vert_group, redirect_group):
 		sum_weight += re[1]
 	sum_weight_diff = 1.0-sum_weight
 	# sum_weight should be 1.0, or 0.0 for none influence
+	# normalize
 	if sum_weight_diff > 0.01 or sum_weight_diff < 0.01:
 		for re in re_list:
 			re[1] += (re[1]/sum_weight)*sum_weight_diff
