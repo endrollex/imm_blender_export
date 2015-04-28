@@ -41,7 +41,7 @@ How to Use:
   choose a export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
   let the other one be comment.
 * Copy and paste run_script.py to Blender Text Editor, Run Script, and open Toggle System Console.
-* After export, You may need to manually edit the texture map's name in Materials part.
+* After export, You must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
 * This project has been tested with Blender 2.74.
 
 Known Issues:

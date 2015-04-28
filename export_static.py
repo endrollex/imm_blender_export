@@ -272,13 +272,14 @@ def txt_matrial(mesh):
 	specular = mathutils.Vector((0.5, 0.5, 0.5))
 	mat_hard = 12.298
 	reflect = mathutils.Vector((0.0, 0.0, 0.0))
+	vec3_dummy = mathutils.Vector((1.0, 1.0, 1.0))
 	diffuse_map = mesh.name+".dds"
 	normal_map = mesh.name+"_nrm.dds"
 	if (len(mesh.materials)) != 0:
 		mat = mesh.materials[0]
 		ambient = mat.ambient
-		diffuse = mat.diffuse_color*mesh.materials[0].diffuse_intensity
-		specular = mat.specular_color*mesh.materials[0].specular_intensity
+		diffuse = vec3_dummy*mat.diffuse_intensity
+		specular = vec3_dummy*mat.specular_intensity
 		# mat_hard method from export_fbx.py
 		mat_hard = ((float(mat.specular_hardness) - 1.0) / 510.0) * 128.0
 		reflect = mat.mirror_color*mat.raytrace_mirror.reflect_factor
@@ -373,7 +374,7 @@ def package_m3d(package_txt, info_anim = []):
 	len_subset = len(find_mesh())
 	# m3d file header
 	txt_m3d = []
-	txt_m3d.append("---------------------------M3D_File_Header-")
+	txt_m3d.append("----------------------------M3D_File_Header-")
 	txt_m3d.append("Materials "+str(len_subset))
 	txt_m3d.append("Vertices "+str(len_uv))
 	txt_m3d.append("Triangles "+str(len_triangle))
@@ -403,7 +404,7 @@ def export_m3d():
 		print("imm export error: no uv mapped mesh found")
 		return;	
 	txt_m3d = package_m3d(package_mesh_static(objects_mesh))
-	export = global_var.export_dir+"export_static.txt"
+	export = global_var.export_dir+"export_static.m3d"
 	write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	#

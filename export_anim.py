@@ -612,7 +612,7 @@ def export_m3d_anim():
 	txt_m3d = export_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
 		[anim_len_bones, len_anim_clip])
 	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
-	export = global_var.export_dir+"export_anim.txt"
+	export = global_var.export_dir+"export_anim.m3d"
 	export_static.write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	# print
