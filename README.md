@@ -17,12 +17,8 @@ Files Explanation:
 * **export_anim.py**: Export animation data to text.
 * **global_var.py**: Global variables.
 * **run_script.py**: Run script.
-* **rigify_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
-* **rigify_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
-
-In Development:
----------------
-The project is in development, maybe it can be used for exporting.
+* **rigify\default_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
+* **rigify\default_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
 
 Export Limits:
 --------------
@@ -42,7 +38,7 @@ How to Use:
   let the other one be comment.
 * Copy and paste run_script.py to Blender Text Editor, Run Script, and open Toggle System Console.
 * After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
-* This project has been tested with Blender 2.74.
+* This project has been tested with Blender 2.75.
 
 Known Issues:
 -------------
@@ -58,7 +54,7 @@ Note:
 * Rigify has 431 bones (Version 0.4), it's too much for a game engine.
   The script use 64 ORG-Prefix bones (with a root) to rebuild hierarchy
   and redirect mesh's weight index to those bones.
-  If you have bones different from default rigify, edit rigify_*.csv files for adjust.
+  If you have bones different from default rigify, edit rigify\*.csv files for adjust.
 
 License:
 --------

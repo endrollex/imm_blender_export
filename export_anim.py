@@ -99,7 +99,7 @@ def read_hierarchy_rigify(arma):
 	global rig_group_map
 	global anim_len_bones
 	# hierarchy
-	read_path = global_var.export_dir+"rigify_hierarchy.csv"
+	read_path = global_var.export_dir+global_var.rigify_hierarchy
 	f = open(read_path)
 	rig_arma_list = f.read().splitlines()
 	f.close()
@@ -110,7 +110,7 @@ def read_hierarchy_rigify(arma):
 	#
 	anim_len_bones = len(rig_arma_list)
 	# group
-	read_path = global_var.export_dir+"rigify_group_map.csv"
+	read_path = global_var.export_dir+global_var.rigify_group_map
 	f = open(read_path)
 	temp = f.read().splitlines()
 	f.close()
@@ -416,7 +416,8 @@ def data_ble_index_weight(mesh, o_mesh):
 	for index, gro in enumerate(o_mesh.vertex_groups):
 		if gro.name not in anim_arma_list:
 			print("--ATTENTION!--")
-			print("imm export error: vertex group name not find in armature")
+			print("imm export error: vertex group name not found in armature")
+			print("imm export error: please ensure only one visible armature in scene")
 			assert(False)
 		redirect_group[index] = anim_arma_list.index(gro.name)
 	#
@@ -463,7 +464,9 @@ def package_anim_clip(txt_time, txt_pos, txt_sca, txt_rot):
 	rt_list = []
 	global anim_fcurve_keys_max
 	if anim_fcurve_keys_max == 0:
+		print("--ATTENTION!--")
 		print("imm export error: keyframes no date")
+		assert(False)
 	for ix in range(0, len(txt_time)):
 		if ix%anim_fcurve_keys_max == 0:
 			rt_list.append("B"+str(int(ix/anim_fcurve_keys_max))+" #K: "+str(anim_fcurve_keys_max)+" {")
