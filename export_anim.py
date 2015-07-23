@@ -168,7 +168,8 @@ def data_offset_rigify(o_mesh, o_arma, arma):
 def data_anim_clip_rigify(scene, action, o_arma):
 	global rig_arma_list
 	global rig_arma_find_old_ix
-	set_active_action(action, o_arma)
+	# set active action
+	o_arma.animation_data.action = action
 	time_list = []
 	pos_list = []
 	sca_list = []
@@ -290,14 +291,6 @@ def get_to_parent(pose_bone):
 	to_parent = pose_bone.parent.matrix.inverted()*pose_bone.matrix
 	return to_parent
 
-# set_active_action
-def set_active_action(action_in, o_arma):
-	bpy.context.scene.objects.active = o_arma
-	temp = bpy.context.area.type
-	bpy.context.area.type = 'DOPESHEET_EDITOR'
-	bpy.context.area.spaces.active.action = action_in
-	bpy.context.area.type = temp
-
 # data bone hierarchy
 def data_hierarchy(arma):
 	# if rigify use
@@ -341,8 +334,8 @@ def data_anim_clip(scene, action, o_arma):
 	# if rigify use
 	if global_var.is_rigify:
 		return data_anim_clip_rigify(scene, action, o_arma)
-	#
-	set_active_action(action, o_arma)
+	# set active action
+	o_arma.animation_data.action = action
 	time_list = []
 	pos_list = []
 	sca_list = []

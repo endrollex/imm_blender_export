@@ -22,10 +22,12 @@ Files Explanation:
 
 Export Limits:
 --------------
-* Exporting mesh objects must have UV map.
-* Exported data is object's local, not world space, all world transform should be zero and no scale.
+* Target mesh objects must have calculated UV.
+* Exported data position is object's local, not world space, all world transform should be zero and no scale.
 * Only export skeletal animation data, not include physics simulation, shape keys.
-* If have two armatrues, only the first visible armature will be exported. (animation export situation)
+* If have two armatrues, only the first visible armature will be exported.
+* Armature preserve volume may be not supported, it uses dual quaternion skinning,
+  however the method of Frank Luna's DX11 book is only linear blend skinning.
 
 How to Use:
 -----------
@@ -38,7 +40,7 @@ How to Use:
   let the other one be comment.
 * Copy and paste run_script.py to Blender Text Editor, Run Script, and open Toggle System Console.
 * After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
-* This project has been tested with Blender 2.75.
+* This project has been tested with Blender v2.75.
 
 Known Issues:
 -------------
@@ -52,8 +54,8 @@ Note:
 * Vertex weight will be sorted from large to small,
   sum of weight is 1.0f or 0.0f indicates 1-4 bones or none bone influences this vertex.
 * Rigify has 431 bones (Version 0.4), it's too much for a game engine.
-  The script use 64 ORG-Prefix bones (with a root) to rebuild hierarchy
-  and redirect mesh's weight index to those bones.
+  The script uses 64 ORG-Prefix bones and one root bone to rebuild hierarchy,
+  then redirect mesh's weight index to those bones.
   If you have bones different from default rigify, edit rigify\*.csv files for adjust.
 
 License:
