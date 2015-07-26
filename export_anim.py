@@ -10,7 +10,7 @@ import bpy
 import mathutils
 import datetime
 import sys
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+#sys.path.append("D:\\Dropbox\\imm_blender_export\\")
 import export_static
 import global_var
 #os.system("cls")
