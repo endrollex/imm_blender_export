@@ -35,7 +35,7 @@ How to Use:
 * In run_script.py, edit `sys.path.append(path)`, the path is the working directory.
   choose a desired export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
   let the other one be comment.
-* Hide object which is not want to export, and keep in Object Model.
+* Hide object which is not want to export. Keep in Object Model.
 * Copy and paste run_script.py to Blender Text Editor, open Toggle System Console, and Run Script.
 * After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
 * This project has been tested with Blender v2.75.
