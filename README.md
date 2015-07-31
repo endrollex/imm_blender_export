@@ -31,7 +31,7 @@ Export Limits:
 
 How to Use:
 -----------
-* In config_var.py, set up `export_dir` amd `working_dir`, set up more config if need.
+* In config_var.py, set up `export_dir` and `working_dir`, set up more config settings if need be.
 * In run_script.py, set up `sys.path.append(path)`, the path is the working directory.
   choose a desired export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
   let the other one be comment.
