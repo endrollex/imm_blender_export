@@ -6,15 +6,19 @@
 # imm_blender_export is distributed under the terms of the GNU General Public License
 #
 
-import os
 import sys
+
+#
+# the path is the working directory.
+#
 sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+
 import export_static
 import export_anim
-#os.system("cls")
 
-# static
+#
+# choose a desired export function between export_static.export_m3d() and export_anim.export_m3d_anim(),
+# let the other one be comment.
+#
 #export_static.export_m3d()
-
-# anim
 export_anim.export_m3d_anim()
