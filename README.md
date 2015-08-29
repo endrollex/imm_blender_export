@@ -6,7 +6,7 @@ immature Blender export
 
 Introduction:
 -------------
-* This is not a Blender addon, but a script, need to edit its settings. 
+* This is not a Blender addon, but a script, need to set up its settings. 
 * Export Blender model data for a game engine.
 * The .m3d file format is a custom file format to store meshes,
   see (Introduction to 3D Game Programming with DirectX 11 by Frank Luna).
@@ -15,7 +15,7 @@ Files Explanation:
 ------------------
 * **export_static.py**: Export static data to text.
 * **export_anim.py**: Export animation data to text.
-* **global_var.py**: Global variables.
+* **config_f.py**: Config.
 * **run_script.py**: Run script.
 * **rigify\default_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
 * **rigify\default_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
@@ -31,7 +31,7 @@ Export Limits:
 
 How to Use:
 -----------
-* In config_var.py, set up `export_dir` and `working_dir`, set up more config settings if need be.
+* In config_f.py, set up `export_dir` and `working_dir`, set up more config settings if need be.
 * In run_script.py, set up `sys.path.append(path)`, the path is the working directory.
   choose a desired export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
   let the other one be comment.

@@ -1,5 +1,5 @@
 #
-# config_var.py
+# config_f.py
 # global variables
 #
 # Copyright 2015 Huang Yiting (http://endrollex.com)

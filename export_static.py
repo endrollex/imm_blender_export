@@ -10,7 +10,7 @@ import bpy
 import math
 import mathutils
 import datetime
-import config_var
+import config_f
 
 ####################################################################################################
 # format functions
@@ -37,13 +37,13 @@ def write_text(path, data_list):
 # right hand to left hand vector3
 # mirrored along the YZ plane in left hand
 def to_left_hand_vec3(vec3_in):
-	if not config_var.is_left_hand:
+	if not config_f.is_left_hand:
 		return mathutils.Vector((vec3_in.x, vec3_in.y, vec3_in.z))
 	return mathutils.Vector((-vec3_in.x, vec3_in.y, vec3_in.z))
 
 # if left hand, flip uv along X
 def uv_flip_x(vec2_in):
-	if config_var.is_left_hand:
+	if config_f.is_left_hand:
 		return mathutils.Vector((vec2_in.x, 1-vec2_in.y))
 	return mathutils.Vector((vec2_in.x, vec2_in.y))
 
@@ -209,8 +209,8 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 		r = 0
 		test = s1 * t2 - s2 * t1
 		if test == 0:
-			#print("imm export error: div by zero, uv may be wrong")
-			None
+			print("imm export error: div by zero, uv may be wrong")
+			#None
 		else:
 			r = 1.0 / test
 		sdir = mathutils.Vector(((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r))
@@ -237,9 +237,9 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 def data_triangle(tessface_list):
 	rt_list = []
 	for t in tessface_list:
-		rt_list.append([t[0], t[2], t[1]]) if config_var.is_left_hand else rt_list.append([t[0], t[1], t[2]])
+		rt_list.append([t[0], t[2], t[1]]) if config_f.is_left_hand else rt_list.append([t[0], t[1], t[2]])
 		if len(t) == 4:
-			rt_list.append([t[0], t[3], t[2]]) if config_var.is_left_hand else rt_list.append([t[0], t[2], t[3]])
+			rt_list.append([t[0], t[3], t[2]]) if config_f.is_left_hand else rt_list.append([t[0], t[2], t[3]])
 	return rt_list
 
 # get position list
@@ -401,15 +401,15 @@ def export_m3d():
 		print("imm export error: no uv mapped mesh found")
 		return;	
 	txt_m3d = package_m3d(package_mesh_static(objects_mesh))
-	export = config_var.export_dir+"export_static.m3d"
+	export = config_f.export_dir+"export_static.m3d"
 	write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	#
 	print("--------------------")
 	print("M3D Export (Static):")
 	print("--------------------")
-	print("left hand:\t"+str(config_var.is_left_hand))
-	print("export dir:\t"+config_var.export_dir)
+	print("left hand:\t"+str(config_f.is_left_hand))
+	print("export dir:\t"+config_f.export_dir)
 	print("spend time:\t"+str(time_spend.total_seconds())+" seconds")
 
 # end

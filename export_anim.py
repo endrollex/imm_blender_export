@@ -10,7 +10,7 @@ import bpy
 import mathutils
 import datetime
 import export_static
-import config_var
+import config_f
 
 # global var
 anim_fcurve_keys_max = 0
@@ -29,7 +29,7 @@ rig_group_map = {}
 
 # matrix right to left hand
 def to_left_matrix(mat):
-	if not config_var.is_left_hand:
+	if not config_f.is_left_hand:
 		return mat
 	s_x = mathutils.Matrix.Identity(3)
 	s_x[0][0] = -1
@@ -96,7 +96,7 @@ def read_hierarchy_rigify(arma):
 	global rig_group_map
 	global anim_len_bones
 	# hierarchy
-	read_path = config_var.working_dir+config_var.rigify_hierarchy
+	read_path = config_f.working_dir+config_f.rigify_hierarchy
 	f = open(read_path)
 	rig_arma_list = f.read().splitlines()
 	f.close()
@@ -107,7 +107,7 @@ def read_hierarchy_rigify(arma):
 	#
 	anim_len_bones = len(rig_arma_list)
 	# group
-	read_path = config_var.working_dir+config_var.rigify_group_map
+	read_path = config_f.working_dir+config_f.rigify_group_map
 	f = open(read_path)
 	temp = f.read().splitlines()
 	f.close()
@@ -291,7 +291,7 @@ def get_to_parent(pose_bone):
 # data bone hierarchy
 def data_hierarchy(arma):
 	# if rigify use
-	if config_var.is_rigify:
+	if config_f.is_rigify:
 		return data_hierarchy_rigify(arma)
 	#
 	rt_list = []
@@ -314,7 +314,7 @@ def data_offset(o_mesh, o_arma, arma):
 	# this step is unnecessary, but check if the world fransform is zero and no scale
 	#
 	# if rigify use
-	if config_var.is_rigify:
+	if config_f.is_rigify:
 		return data_offset_rigify(o_mesh, o_arma, arma)
 	#
 	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
@@ -329,7 +329,7 @@ def data_offset(o_mesh, o_arma, arma):
 # data anim clip, time position scale rotation
 def data_anim_clip(scene, action, o_arma):
 	# if rigify use
-	if config_var.is_rigify:
+	if config_f.is_rigify:
 		return data_anim_clip_rigify(scene, action, o_arma)
 	# set active action
 	o_arma.animation_data.action = action
@@ -398,7 +398,7 @@ def reassign_weight(vert_group, redirect_group):
 # data blender indices and weights
 def data_ble_index_weight(mesh, o_mesh):
 	# if rigify use
-	if config_var.is_rigify:
+	if config_f.is_rigify:
 		return data_ble_index_weight_rigify(mesh, o_mesh)
 	# get current group index map to armatrue index
 	global anim_arma_list
@@ -593,9 +593,9 @@ def export_m3d_anim():
 	arma = o_arma.data
 	build_arma_info(o_arma, arma)
 	# if rigify use
-	if not config_var.is_rigify:
-		config_var.is_rigify = is_rigify(arma)
-	if config_var.is_rigify:
+	if not config_f.is_rigify:
+		config_f.is_rigify = is_rigify(arma)
+	if config_f.is_rigify:
 		read_hierarchy_rigify(arma)
 	global anim_len_bones
 	# package
@@ -605,18 +605,16 @@ def export_m3d_anim():
 	txt_m3d = export_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
 		[anim_len_bones, len_anim_clip])
 	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
-	export = config_var.export_dir+"export_anim.m3d"
+	export = config_f.export_dir+"export_anim.m3d"
 	export_static.write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	# print
 	print("-----------------------")
 	print("M3D Export (Animation):")
 	print("-----------------------")
-	print("left hand:\t"+str(config_var.is_left_hand))
-	print("is rigify:\t"+str(config_var.is_rigify))
-	print("export dir:\t"+config_var.export_dir)
+	print("left hand:\t"+str(config_f.is_left_hand))
+	print("is rigify:\t"+str(config_f.is_rigify))
+	print("export dir:\t"+config_f.export_dir)
 	print("spend time:\t"+str(time_spend.total_seconds())+" seconds")
 
 # end
-# anim
-#export_m3d_anim()
