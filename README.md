@@ -38,7 +38,7 @@ How to Use:
 * Hide object which is not want to export. Keep in Object Model.
 * Copy and paste run_script.py to Blender Text Editor, open Toggle System Console, and Run Script.
 * After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
-* This project has been tested with Blender v2.75.
+* This project has been tested with Blender v2.76.
 
 Known Issues:
 -------------
@@ -48,6 +48,12 @@ Known Issues:
   simply find max framekeys in the specific FCurve.
 * If use Rigify, please ensure ORG-Prefix bones have right pose transform,
   some rig ways may cause no effect transform on ORG-Prefix bones, for example: rig : elbow_hose.R.
+* In some rare cases, exported pose will be chaos, cause this problem maybe a specific operation in blender 
+  that before set parent with aramture, object has some other modifers,
+  not sure, guess, animation data may be not pure for imm_blender_export. 
+  Try to reset parent with armature and reassign weight, if not work, delete the object,
+  append a clean object without animation data and redo carefully.
+  (animation data can not be cleared by design https://developer.blender.org/T38693)
 
 Note:
 -----
