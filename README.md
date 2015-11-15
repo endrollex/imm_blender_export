@@ -52,7 +52,7 @@ Known Issues:
   Guess weight data is not pure for imm_blender_export, maybe the problem is modifers order? 
   Try to reset parent with armature and reassign weight, if not work, delete the object,
   append a clean object without weight data and redo carefully.
-  (animation data can not be cleared by design https://developer.blender.org/T38693)
+  (animation data can not be cleared by design: [T38693](https://developer.blender.org/T38693))
 
 Note:
 -----
