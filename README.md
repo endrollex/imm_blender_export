@@ -9,14 +9,14 @@ Introduction:
 * This is not a Blender addon, but a script, need to set up its settings. 
 * Export Blender model data for a game engine.
 * The .m3d file format is a custom file format to store meshes,
-  see (Introduction to 3D Game Programming with DirectX 11 by Frank Luna).
+  see [Introduction to 3D Game Programming with DirectX 11](http://www.amazon.com/Introduction-3D-Game-Programming-DirectX/dp/1936420228/).
 
 Files Explanation:
 ------------------
 * **export_static.py**: Export static data to text.
 * **export_anim.py**: Export animation data to text.
-* **config_f.py**: Config.
-* **run_script.py**: Run script.
+* **config_setup.py**: Config.
+* **run_script.py**: Run script in Blender.
 * **rigify\default_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
 * **rigify\default_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
 
@@ -31,7 +31,7 @@ Export Limits:
 
 How to Use:
 -----------
-* In config_f.py, set up `export_dir` and `working_dir`, set up more config settings if need be.
+* In config_setup.py, set up `export_dir` and `working_dir`, set up more config settings if need be.
 * In run_script.py, set up `sys.path.append(path)`, the path is the working directory.
   choose a desired export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
   let the other one be comment.
@@ -48,11 +48,6 @@ Known Issues:
   simply find max framekeys in the specific FCurve.
 * If use Rigify, please ensure ORG-Prefix bones have right pose transform,
   some rig ways may cause no effect transform on ORG-Prefix bones, for example: rig : elbow_hose.R.
-* In some rare cases, exported pose will be chaos. The reason is not clear. 
-  Guess weight data is not pure for imm_blender_export, maybe the problem is modifers order? 
-  Try to reset parent with armature and reassign weight, if not work, delete the object,
-  append a clean object without weight data and redo carefully.
-  (animation data can not be cleared by design: [T38693](https://developer.blender.org/T38693))
 
 Note:
 -----
