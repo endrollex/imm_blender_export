@@ -46,8 +46,8 @@ Known Issues:
   now let this step's result to be 0.0f, it is dirty solution.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
-* If use Rigify, please ensure ORG-Prefix bones have right pose transform,
-  some rig ways may cause no effect transform on ORG-Prefix bones, for example: rig : elbow_hose.R.
+* If use Rigify, please ensure ORG-Prefix bones have right pose transform.
+  Rig Layers: Arm.L(Tweak), Arm.R(Tweak), Leg.L(Tweak) and Leg.R(Tweak) are not work on ORG-Prefix bones.
 
 Note:
 -----
