@@ -270,8 +270,8 @@ def txt_matrial(mesh):
 	mat_hard = 12.298
 	reflect = mathutils.Vector((0.0, 0.0, 0.0))
 	vec3_dummy = mathutils.Vector((1.0, 1.0, 1.0))
-	diffuse_map = mesh.name+".dds"
-	normal_map = mesh.name+"_nrm.dds"
+	diffuse_map = mesh.name+"_d.dds"
+	normal_map = mesh.name+"_n.dds"
 	if (len(mesh.materials)) != 0:
 		mat = mesh.materials[0]
 		ambient = mat.ambient

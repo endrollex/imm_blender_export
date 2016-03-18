@@ -48,7 +48,8 @@ Known Issues:
   simply find max framekeys in the specific FCurve.
 * If use Rigify, please ensure ORG-Prefix bones have right pose transform.
   Rig Layers: Arm.L(Tweak), Arm.R(Tweak), Leg.L(Tweak) and Leg.R(Tweak) are not work on ORG-Prefix bones.
-
+* If a complex mesh object use Solidify Modifier, apply before rigging, the exported skinned mesh maybe disorder.
+  Recommend apply Solidify Modifier after rigging.
 Note:
 -----
 * Vertex weight will be sorted from large to small,
