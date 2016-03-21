@@ -24,7 +24,7 @@ Export Limits:
 --------------
 * Target mesh objects must have calculated UV.
 * Exported data position is object's local, not world space, all world transform should be zero and no scale.
-* Only export skeletal animation data, not include physics simulation, shape keys.
+* Only export skeletal animation data, not include physics, shape keys, constraints.
 * If have two armatrues, only the first visible armature will be exported.
 * Armature preserve volume may be not supported, it uses dual quaternion skinning,
   however the method of Frank Luna's DX11 book is only linear blend skinning.
@@ -38,18 +38,16 @@ How to Use:
 * Hide object which is not want to export. Keep in Object Model.
 * Copy and paste run_script.py to Blender Text Editor, open Toggle System Console, and Run Script.
 * After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
-* This project has been tested with Blender v2.76.
+* This project has been tested with Blender v2.77.
 
 Known Issues:
 -------------
-* A particular step of tangent data's algorithm sometimes will div by zero, I do not know why,
-  now let this step's result to be 0.0f, it is dirty solution.
 * Blender FCurve I do not understand the mechanism, in order to find all framekeys,
   simply find max framekeys in the specific FCurve.
 * If use Rigify, please ensure ORG-Prefix bones have right pose transform.
   Rig Layers: Arm.L(Tweak), Arm.R(Tweak), Leg.L(Tweak) and Leg.R(Tweak) are not work on ORG-Prefix bones.
-* If a complex mesh object use Solidify Modifier, apply before rigging, the exported skinned mesh maybe disorder.
-  Recommend apply Solidify Modifier after rigging.
+* If a complex mesh object using Solidify Modifier had been applied before rigging, the exported skinned mesh may be disorder.
+  Recommend apply Solidify Modifier after rigging when this issue happened.
 
 Note:
 -----
@@ -62,5 +60,5 @@ Note:
 
 License:
 --------
-* Copyright 2014-2015 Huang Yiting (http://endrollex.com)
+* Copyright 2014-2016 Huang Yiting (http://endrollex.com)
 * imm_blender_export is distributed under the terms of the GNU General Public License
