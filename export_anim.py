@@ -174,25 +174,25 @@ def data_anim_clip_rigify(scene, action, o_arma):
 	# find completed framekeys in fcurves
 	global anim_fcurve_keys_max
 	anim_fcurve_keys_max = 0
-	fcurve_ix = 0
+	key_co_set = set()
 	for ix_fcu in range(0, len(action.fcurves)):
-		len_fcurve_keys = len(action.fcurves[ix_fcu].keyframe_points)
-		if len_fcurve_keys > anim_fcurve_keys_max:
-			anim_fcurve_keys_max = len_fcurve_keys
-			fcurve_ix = ix_fcu
+		for key in action.fcurves[ix_fcu].keyframe_points:
+			key_co_set.add(key.co[0])
+	key_co_list = sorted(key_co_set)
+	anim_fcurve_keys_max = len(key_co_list);
 	# fps -> second
 	frame_time = 1/scene.render.fps
 	# time
 	for nothing in rig_arma_list:
-		for key in action.fcurves[fcurve_ix].keyframe_points:
-			time_list.append(key.co[0]*frame_time)
+		for key_co in key_co_list:
+			time_list.append(key_co*frame_time)
 			pos_list.append(None)
 			sca_list.append(None)
 			rot_list.append(None)
 	# position scale rotation
-	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
-		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
-		scene.frame_set(key.co[0])
+	len_key = len(key_co_list)
+	for ix_key, key_co in enumerate(key_co_list):
+		scene.frame_set(key_co)
 		scene.update
 		for index, org_bone in enumerate(rig_arma_list):
 			ix = index
@@ -340,25 +340,25 @@ def data_anim_clip(scene, action, o_arma):
 	# find completed framekeys in fcurves
 	global anim_fcurve_keys_max
 	anim_fcurve_keys_max = 0
-	fcurve_ix = 0
+	key_co_set = set()
 	for ix_fcu in range(0, len(action.fcurves)):
-		len_fcurve_keys = len(action.fcurves[ix_fcu].keyframe_points)
-		if len_fcurve_keys > anim_fcurve_keys_max:
-			anim_fcurve_keys_max = len_fcurve_keys
-			fcurve_ix = ix_fcu
+		for key in action.fcurves[ix_fcu].keyframe_points:
+			key_co_set.add(key.co[0])
+	key_co_list = sorted(key_co_set)
+	anim_fcurve_keys_max = len(key_co_list);
 	# fps -> second
 	frame_time = 1/scene.render.fps
 	# time
 	for bone in o_arma.pose.bones:
-		for key in action.fcurves[fcurve_ix].keyframe_points:
-			time_list.append(key.co[0]*frame_time)
+		for key_co in key_co_list:
+			time_list.append(key_co*frame_time)
 			pos_list.append(None)
 			sca_list.append(None)
 			rot_list.append(None)
 	# position scale rotation
-	for ix_key, key in enumerate(action.fcurves[fcurve_ix].keyframe_points):
-		len_key = len(action.fcurves[fcurve_ix].keyframe_points)
-		scene.frame_set(key.co[0])
+	len_key = len(key_co_list)
+	for ix_key, key_co in enumerate(key_co_list):
+		scene.frame_set(key_co)
 		scene.update
 		for ix, bone in enumerate(o_arma.data.bones):
 			mat_to_p = get_to_parent(o_arma.pose.bones.get(bone.name)).transposed()

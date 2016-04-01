@@ -42,8 +42,6 @@ How to Use:
 
 Known Issues:
 -------------
-* Blender FCurve I do not understand the mechanism, in order to find all framekeys,
-  simply find max framekeys in the specific FCurve.
 * If use Rigify, please ensure ORG-Prefix bones have right pose transform.
   Rig Layers: Arm.L(Tweak), Arm.R(Tweak), Leg.L(Tweak) and Leg.R(Tweak) are not work on ORG-Prefix bones.
 * If a complex mesh object using Solidify Modifier had been applied before rigging, the exported skinned mesh may be disorder.
