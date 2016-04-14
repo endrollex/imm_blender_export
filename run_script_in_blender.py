@@ -1,6 +1,6 @@
 #
-# run_script.py
-# run script
+# run_script_in_blender.py
+# run script in blender
 #
 # Copyright 2015 Huang Yiting (http://endrollex.com)
 # imm_blender_export is distributed under the terms of the GNU General Public License
