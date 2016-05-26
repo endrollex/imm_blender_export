@@ -11,7 +11,7 @@ import datetime
 import sys
 sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 import export_static
-import global_var
+import config_setup
 os.system("cls")
 
 # armature
@@ -35,7 +35,7 @@ for index, bone in enumerate(arma.bones):
 	rig_list.append(temp)
 print(len(arma.bones))
 print(arma.bones[0].name)
-export = global_var.export_dir+"rig.txt"
+export = config_setup.export_dir+"rig.txt"
 #export_static.write_text(export, rig_list)
 '''
 
@@ -54,7 +54,7 @@ rigify_list = []
 rigify_dict = {}
 rigify_dict_inv = {}
 #
-read_path = global_var.export_dir+"rigify_hierarchy.csv"
+read_path = config_setup.export_dir+"rigify_hierarchy.csv"
 f = open(read_path)
 rigify_list = f.read().splitlines()
 f.close()
@@ -77,11 +77,11 @@ print(len(rigify_dict_inv))
 
 # read group map
 rigify_group = []
-read_path = global_var.export_dir+"rigify_group_map.csv"
+read_path = config_setup.export_dir+"rigify_group_map.csv"
 f = open(read_path)
 temp = f.read().splitlines()
 f.close()
 for line in temp:
 	rigify_group.append(line.split(","))
 for gro_map in rigify_group:
-		print(gro_map[0], gro_map[1])
+	print(gro_map[0], gro_map[1])

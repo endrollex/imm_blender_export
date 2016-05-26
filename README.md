@@ -6,7 +6,7 @@ immature Blender export
 
 Introduction:
 -------------
-* This is not a Blender addon, but a script, need to set up its settings. 
+* This is not a Blender addon, but a script, need to setup its settings. 
 * Export Blender model data for a game engine.
 * The .m3d file format (DirectX11 Verion) is a custom file format to store meshes,
   see [Introduction to 3D Game Programming with DirectX 11](http://www.amazon.com/dp/1936420228/).

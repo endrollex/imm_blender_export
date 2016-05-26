@@ -7,7 +7,7 @@
 #
 
 # export directory and working directory
-export_dir = "D:\\Dropbox\\imm_blender_export\\"
+export_dir = "C:\\Dropbox\\imm_blender_export\\"
 working_dir = export_dir
 
 # left hand or right hand

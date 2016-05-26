@@ -11,7 +11,7 @@ import sys
 #
 # the path is the working directory.
 #
-sys.path.append("D:\\Dropbox\\imm_blender_export\\")
+sys.path.append("C:\\Dropbox\\imm_blender_export\\")
 
 import export_static
 import export_anim
