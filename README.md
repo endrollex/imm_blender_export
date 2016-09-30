@@ -13,9 +13,9 @@ Introduction:
 
 Files Explanation:
 ------------------
-* **export_static.py**: Let it be.
-* **export_anim.py**: Let it be.
 * **config_setup.py**: Setup configuration.
+* **export_static.py**: Functions, let it be.
+* **export_anim.py**: Functions, let it be.
 * **run_script_in_blender.py**: Run script in Blender.
 * **rigify\default_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
 * **rigify\default_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
@@ -37,8 +37,8 @@ How to Use:
   let the other one be comment.
 * Hide objects which are not want to export. Keep in Object Model.
 * Copy and paste run_script_in_blender.py to Blender Text Editor, open Toggle System Console, and Run Script.
-* After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name.
-* This project has been tested with Blender v2.77.
+* After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name manually.
+* This project has been tested with Blender v2.78.
 
 Known Issues:
 -------------
@@ -55,8 +55,9 @@ Note:
   The script uses 64 ORG-Prefix bones and one root bone to rebuild hierarchy,
   then redirect mesh's weight index to those bones.
   If you have bones different from default rigify, edit rigify\*.csv files for adjust.
-* The .m3d file format (DirectX12 Verion) has a bit more advanced Materials, 
+* The .m3d file format (DirectX12 Verion) has a bit more advanced Materials,
   see [Introduction to 3D Game Programming with DirectX 12](http://www.amazon.com/dp/1942270062).
+  Notice this feature is not implemented in the script.
 
 License:
 --------
