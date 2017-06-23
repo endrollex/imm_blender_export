@@ -44,7 +44,8 @@ Known Issues:
 -------------
 * If use Rigify, please ensure ORG-Prefix bones have right pose transform.
   Rig Layers: Arm.L(Tweak), Arm.R(Tweak), Leg.L(Tweak) and Leg.R(Tweak) are not work on ORG-Prefix bones.
-* If a complex mesh object using Solidify Modifier had been applied before rigging, the exported skinned mesh may be disorder.
+* If a complex mesh object using Solidify Modifier had been applied before rigging,
+  the exported skinned mesh may be disorder.
   Recommend apply Solidify Modifier after rigging when this issue happened.
 
 Note:
@@ -61,5 +62,5 @@ Note:
 
 License:
 --------
-* Copyright 2014-2016 Huang Yiting (http://endrollex.com)
+* Copyright 2014-2017 Huang Yiting (http://endrollex.com)
 * imm_blender_export is distributed under the terms of the GNU General Public License

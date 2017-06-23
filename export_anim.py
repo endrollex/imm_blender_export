@@ -79,11 +79,11 @@ def number_to_str(list_in):
 # check is rigify
 def is_rigify(arma):
 	is_rig = False
-	if (arma.name == "rig"):
-		is_rig = True
-	if (len(arma.bones) > 300):
-		is_rig = True
-	else:
+	for bone in arma.bones:
+		if bone.name == "MCH-neck.follow":
+			is_rig = True
+			break
+	if (len(arma.bones) < 400):
 		is_rig = False
 	return is_rig
 
