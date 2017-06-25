@@ -13,10 +13,9 @@ Introduction:
 
 Files Explanation:
 ------------------
-* **config_setup.py**: Setup configuration.
-* **export_static.py**: Functions, let it be.
-* **export_anim.py**: Functions, let it be.
-* **run_script_in_blender.py**: Run script in Blender.
+* **imm_static.py**: Functions, let it be.
+* **imm_anim.py**: Functions, let it be.
+* **run_script_in_blender.py**: Run this script in Blender.
 * **rigify\default_group_map.csv**: Redirect mesh's weight data. (Rigify situation)
 * **rigify\default_hierarchy.csv**: Rebuild bone hierarchy data. (Rigify situation)
 
@@ -27,14 +26,12 @@ Export Limits:
 * Only export skeletal animation data, not include physics, shape keys, constraints.
 * If have two armatrues, only the first visible armature will be exported.
 * Armature preserve volume is not supported, it uses dual quaternion skinning,
-  however the method of Frank Luna's DX11 book is only linear blend skinning.
+  Frank Luna's method is linear blend skinning.
+* Rigify export only support human version, not pitchipoy version
 
 How to Use:
 -----------
-* In config_setup.py, setup `export_dir` and `working_dir`, setup more settings if need be.
-* In run_script_in_blender.py, setup `sys.path.append(path)`, the path is the working directory.
-  choose a desired export function between `export_static.export_m3d()` and `export_anim.export_m3d_anim()`,
-  let the other one be comment.
+* In run_script_in_blender.py, setup `WORKING_DIR` and `EXPORT_DIR`, setup more settings if need be.
 * Hide objects which are not want to export. Keep in Object Model.
 * Copy and paste run_script_in_blender.py to Blender Text Editor, open Toggle System Console, and Run Script.
 * After exported, you must edit "Materials" part of .m3d file, and specify the diffuse/normal map name manually.

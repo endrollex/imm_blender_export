@@ -8,17 +8,31 @@
 
 import sys
 
-#
-# the path is the working directory.
-#
-sys.path.append("C:\\Dropbox\\imm_blender_export\\")
+# WORKING_DIR: the path is the working directory.
+WORKING_DIR = "D:\\x49_Documents\\Modeling_Anim\\imm_blender_export\\"
+sys.path.append(WORKING_DIR)
 
-import export_static
-import export_anim
+import imm_static
+import imm_anim
 
-#
-# choose a desired export function between export_static.export_m3d() and export_anim.export_m3d_anim(),
-# let the other one be comment.
-#
-#export_static.export_m3d()
-export_anim.export_m3d_anim()
+# EXPORT_DIR, WORKING_DIR: export directory and working directory
+imm_static.set_global_dict("EXPORT_DIR", "D:\\x49_Documents\\Modeling_Anim\\m3dtob3m\\")
+imm_static.set_global_dict("WORKING_DIR", WORKING_DIR)
+
+# IS_LEFT_HARD: left hand or right hand
+imm_static.set_global_dict("IS_LEFT_HAND", True)
+
+# IS_RIGIFY: False will auto check if rigify is using, True will force to determine that model is using rigify
+imm_static.set_global_dict("IS_RIGIFY", False)
+
+# RIGIFY_GROUP_MAP: group_map file path, use ORG-Prefix bones map from DEF-Prefix bones
+imm_static.set_global_dict("RIGIFY_GROUP_MAP", "rigify\\default_group_map.csv")
+
+# RIGIFY_HIERARCHY: hierarchy file path, rebuild hierarchy
+imm_static.set_global_dict("RIGIFY_HIERARCHY", "rigify\\default_hierarchy.csv")
+
+# IS_EXPORT_ANIM: False for staic model only, True for export animation data
+imm_static.set_global_dict("IS_EXPORT_ANIM", True)
+
+# run script
+imm_anim.run_script()

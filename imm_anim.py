@@ -1,5 +1,5 @@
 #
-# export_anim.py
+# imm_anim.py
 # export animation data to text
 #
 # Copyright 2015 Huang Yiting (http://endrollex.com)
@@ -9,13 +9,13 @@ import os
 import bpy
 import mathutils
 import datetime
-import export_static
-import config_setup
+import imm_static
 
 # global var
 anim_fcurve_keys_max = 0
 anim_len_bones = 0
 anim_arma_list = []
+
 # rigify
 rig_arma_list = []
 rig_arma_find_old_ix = {}
@@ -29,7 +29,7 @@ rig_group_map = {}
 
 # matrix right to left hand
 def to_left_matrix(mat):
-	if not config_setup.is_left_hand:
+	if not imm_static.getglobald("IS_LEFT_HAND"):
 		return mat
 	s_x = mathutils.Matrix.Identity(3)
 	s_x[0][0] = -1
@@ -43,7 +43,7 @@ def to_left_matrix(mat):
 def format_matrix(list_in):
 	rt_list = []
 	for mat in list_in:
-		vec_list = export_static.format_vector(mat)
+		vec_list = imm_static.format_vector(mat)
 		temp = vec_list[0]
 		for ix in range(1, len(vec_list)):
 			temp += " "+vec_list[ix]
@@ -68,7 +68,7 @@ def format_index(list_in):
 def number_to_str(list_in):
 	rt_list = []
 	for num in list_in:
-		rt_list.append(str(export_static.round_sig(num)))
+		rt_list.append(str(imm_static.round_sig(num)))
 	return rt_list
 
 ####################################################################################################
@@ -96,7 +96,7 @@ def read_hierarchy_rigify(arma):
 	global rig_group_map
 	global anim_len_bones
 	# hierarchy
-	read_path = config_setup.working_dir+config_setup.rigify_hierarchy
+	read_path = imm_static.getglobald("WORKING_DIR")+imm_static.getglobald("RIGIFY_HIERARCHY")
 	f = open(read_path)
 	rig_arma_list = f.read().splitlines()
 	f.close()
@@ -107,7 +107,7 @@ def read_hierarchy_rigify(arma):
 	#
 	anim_len_bones = len(rig_arma_list)
 	# group
-	read_path = config_setup.working_dir+config_setup.rigify_group_map
+	read_path = imm_static.getglobald("WORKING_DIR")+imm_static.getglobald("RIGIFY_GROUP_MAP")
 	f = open(read_path)
 	temp = f.read().splitlines()
 	f.close()
@@ -291,7 +291,7 @@ def get_to_parent(pose_bone):
 # data bone hierarchy
 def data_hierarchy(arma):
 	# if rigify use
-	if config_setup.is_rigify:
+	if imm_static.getglobald("IS_RIGIFY"):
 		return data_hierarchy_rigify(arma)
 	#
 	rt_list = []
@@ -314,7 +314,7 @@ def data_offset(o_mesh, o_arma, arma):
 	# this step is unnecessary, but check if the world fransform is zero and no scale
 	#
 	# if rigify use
-	if config_setup.is_rigify:
+	if imm_static.getglobald("IS_RIGIFY"):
 		return data_offset_rigify(o_mesh, o_arma, arma)
 	#
 	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
@@ -329,7 +329,7 @@ def data_offset(o_mesh, o_arma, arma):
 # data anim clip, time position scale rotation
 def data_anim_clip(scene, action, o_arma):
 	# if rigify use
-	if config_setup.is_rigify:
+	if imm_static.getglobald("IS_RIGIFY"):
 		return data_anim_clip_rigify(scene, action, o_arma)
 	# set active action
 	o_arma.animation_data.action = action
@@ -398,7 +398,7 @@ def reassign_weight(vert_group, redirect_group):
 # data blender indices and weights
 def data_ble_index_weight(mesh, o_mesh):
 	# if rigify use
-	if config_setup.is_rigify:
+	if imm_static.getglobald("IS_RIGIFY"):
 		return data_ble_index_weight_rigify(mesh, o_mesh)
 	# get current group index map to armatrue index
 	global anim_arma_list
@@ -493,9 +493,9 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 	for action in coll_action:
 		anim_clip = data_anim_clip(scene, action, o_arma)
 		txt_time = number_to_str(anim_clip[0])
-		txt_pos = export_static.format_vector(anim_clip[1])
-		txt_sca = export_static.format_vector(anim_clip[2])
-		txt_rot = export_static.format_vector(anim_clip[3])
+		txt_pos = imm_static.format_vector(anim_clip[1])
+		txt_sca = imm_static.format_vector(anim_clip[2])
+		txt_rot = imm_static.format_vector(anim_clip[3])
 		txt_anim_clip = package_anim_clip(txt_time, txt_pos, txt_sca, txt_rot)	
 		txt_coll_anim_clip.append("AnimationClip "+action.name)
 		txt_coll_anim_clip.append("{")
@@ -515,33 +515,33 @@ def package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action):
 		# arrange vertex accroding uv
 		o_mesh = bpy.data.objects[ix]
 		mesh = bpy.data.objects[ix].data		
-		uv, uv_ex_dict, tessface = export_static.data_uv_and_face(mesh)
+		uv, uv_ex_dict, tessface = imm_static.data_uv_and_face(mesh)
 		len_uv = len(uv)
 		# triangle and vertex
-		triangle = export_static.data_triangle(tessface)
-		position = export_static.data_position(mesh, len_uv, uv_ex_dict)
-		normal = export_static.data_normal(mesh, len_uv, uv_ex_dict)
-		tangent = export_static.data_tangent(len_uv, position, normal, uv, triangle)
+		triangle = imm_static.data_triangle(tessface)
+		position = imm_static.data_position(mesh, len_uv, uv_ex_dict)
+		normal = imm_static.data_normal(mesh, len_uv, uv_ex_dict)
+		tangent = imm_static.data_tangent(len_uv, position, normal, uv, triangle)
 		# vertex
-		txt_uv = export_static.format_vector(uv)
-		txt_position = export_static.format_vector(position)
-		txt_normal = export_static.format_vector(normal)
-		txt_tangent = export_static.format_vector(tangent)
+		txt_uv = imm_static.format_vector(uv)
+		txt_position = imm_static.format_vector(position)
+		txt_normal = imm_static.format_vector(normal)
+		txt_tangent = imm_static.format_vector(tangent)
 		# subset
 		sub_vertex_count.append(len_uv)
 		sub_face_count.append(len(triangle))
 		if len(sub_vertex_count) > 1:
 			sub_vertex_start.append(sub_vertex_start[-1]+sub_vertex_count[-2])
 			sub_face_start.append(sub_face_start[-1]+sub_face_count[-2])
-			triangle = export_static.offset_triangle(triangle, sub_vertex_start[-1])
-		txt_triangle += export_static.format_triangle(triangle)
+			triangle = imm_static.offset_triangle(triangle, sub_vertex_start[-1])
+		txt_triangle += imm_static.format_triangle(triangle)
 		# material
-		txt_material += export_static.txt_matrial(mesh)
+		txt_material += imm_static.txt_matrial(mesh)
 		# bone weight and index
 		ble_index_weight = data_ble_index_weight(mesh, o_mesh)
 		ble_index_weight = data_ble_index_weight_add(len_uv, uv_ex_dict, ble_index_weight)
 		txt_ble_index = format_index(ble_index_weight[0])
-		txt_ble_weight = export_static.format_vector(ble_index_weight[1])
+		txt_ble_weight = imm_static.format_vector(ble_index_weight[1])
 		txt_vertex += package_vertex_anim\
 			(len_uv, txt_position, txt_normal, txt_tangent, txt_uv, txt_ble_index, txt_ble_weight)
 	# subset table
@@ -574,8 +574,8 @@ def package_bone_anim(offset, hierarchy, coll_anim_clip):
 def export_m3d_anim():
 	time_start = datetime.datetime.now()
 	# object
-	objects_arma = export_static.find_first_object("ARMATURE")
-	objects_mesh = export_static.find_mesh()
+	objects_arma = imm_static.find_first_object("ARMATURE")
+	objects_mesh = imm_static.find_mesh()
 	scene = bpy.data.scenes[0]
 	coll_action = bpy.data.actions
 	# check
@@ -593,30 +593,38 @@ def export_m3d_anim():
 	arma = o_arma.data
 	build_arma_info(o_arma, arma)
 	# if rigify use
-	if not config_setup.is_rigify:
-		config_setup.is_rigify = is_rigify(arma)
-	if config_setup.is_rigify:
+	if not imm_static.getglobald("IS_RIGIFY"):
+		imm_static.set_global_dict("IS_RIGIFY", is_rigify(arma))
+	if imm_static.getglobald("IS_RIGIFY"):
 		read_hierarchy_rigify(arma)
 	global anim_len_bones
 	# package
 	txt_vertex, txt_triangle, txt_subset, txt_material, \
 		txt_offset, txt_hierarchy, txt_coll_anim_clip, len_anim_clip = \
 		package_mesh_anim(scene, objects_mesh, o_arma, arma, coll_action)
-	txt_m3d = export_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
+	txt_m3d = imm_static.package_m3d([txt_vertex, txt_triangle, txt_subset, txt_material], \
 		[anim_len_bones, len_anim_clip])
 	txt_m3d += package_bone_anim(txt_offset, txt_hierarchy, txt_coll_anim_clip)
 	file_name = bpy.path.basename(bpy.context.blend_data.filepath)
 	file_name = file_name.replace(".blend", "")
-	export = config_setup.export_dir+file_name+".m3d"
-	export_static.write_text(export, txt_m3d)
+	export = imm_static.getglobald("EXPORT_DIR")+file_name+".m3d"
+	imm_static.write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	# print
 	print("-----------------------")
 	print("M3D Export (Animation):")
 	print("-----------------------")
-	print("left hand:  "+str(config_setup.is_left_hand))
-	print("is rigify:  "+str(config_setup.is_rigify))
+	print("left hand:  "+str(imm_static.getglobald("IS_LEFT_HAND")))
+	print("is rigify:  "+str(imm_static.getglobald("IS_RIGIFY")))
 	print("export:     "+export)
 	print("spend time: "+str(time_spend.total_seconds())+" seconds")
+
+# run stript
+def run_script():
+	is_export_anim = imm_static.getglobald("IS_EXPORT_ANIM")
+	if (is_export_anim):
+		export_m3d_anim()
+	else:
+		imm_static.export_m3d()
 
 # end
