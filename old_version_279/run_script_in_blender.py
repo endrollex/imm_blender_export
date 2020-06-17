@@ -3,18 +3,18 @@
 #
 
 import sys
-# WORKING_DIR:
-WORKING_DIR = "D:\\\EndrDocument\\ModelAnim\\imm_blender_export\\"
+# WORKING_DIR: the path is the working directory.
+WORKING_DIR = ""
 sys.path.append(WORKING_DIR)
 import imm_static
 import imm_anim
-# EXPORT_DIR, WORKING_DIR:
-imm_static.set_global_dict("EXPORT_DIR", "D:\\\EndrDocument\\ModelAnim\\m3dtob3m\\")
+# EXPORT_DIR, WORKING_DIR: export directory and working directory
+imm_static.set_global_dict("EXPORT_DIR", WORKING_DIR)
 imm_static.set_global_dict("WORKING_DIR", WORKING_DIR)
 # IS_LEFT_HARD: left hand or right hand
 imm_static.set_global_dict("IS_LEFT_HAND", True)
 # IS_RIGIFY: False will auto check if rigify is using, True will force to determine that model is using rigify
-imm_static.set_global_dict("IS_RIGIFY", True)
+imm_static.set_global_dict("IS_RIGIFY", False)
 # RIGIFY_GROUP_MAP: group_map file path, use ORG-Prefix bones map from DEF-Prefix bones
 imm_static.set_global_dict("RIGIFY_GROUP_MAP", "rigify_custom\\default_map.csv")
 # RIGIFY_HIERARCHY: hierarchy file path, rebuild hierarchy

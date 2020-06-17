@@ -94,8 +94,8 @@ def offset_triangle(list_in, offset):
 
 # calc_tess
 def calc_tess(mesh):
-	if len(mesh.loop_triangles) == 0:
-		mesh.calc_loop_triangles()
+	if len(mesh.tessfaces) == 0:
+		mesh.calc_tessface()
 
 # find_mesh, mesh which must has uv
 def find_mesh():
@@ -104,18 +104,15 @@ def find_mesh():
 		if obj.type == "MESH":
 			mesh = bpy.data.objects[ix].data
 			calc_tess(mesh)
-			if len(mesh.uv_layers) != 0 and not obj.hide_viewport:
+			if len(mesh.uv_textures) != 0 and not obj.hide:
 				obj_list.append(ix)
 	return obj_list
 
 # find_first_object
 def find_first_object(o_type):
 	for ix, obj in enumerate(bpy.data.objects):
-		if obj.type == o_type and not obj.hide_viewport:
-			if o_type == "ARMATURE" and obj.name == "metarig" and getglobald("IS_RIGIFY"):
-				None
-			else:
-				return [ix]
+		if obj.type == o_type and not obj.hide:
+			return [ix]
 	return []
 
 # get uv list and tessface list
@@ -127,13 +124,13 @@ def data_uv_and_face(mesh):
 	# check tessfaces, to avoid repeated calc_tessface
 	calc_tess(mesh)
 	# deepcopy manually
-	for tri in mesh.loop_triangles:
-		tessface_list.append([])
-		for vert_index in tri.vertices:
-			tessface_list[-1].append(vert_index)
-
+	for t in mesh.tessfaces:
+		if len(t.vertices) == 4:
+			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2], t.vertices[3]])
+		else:
+			tessface_list.append([t.vertices[0], t.vertices[1], t.vertices[2]])
 	# store uv according to vertex of tessface
-	uv_data = mesh.uv_layers[0].data
+	uv_data = mesh.tessface_uv_textures[0].data
 	uv_list = []
 	uv_ex_dict = {}
 	uv_ex_dict_inv = {}
@@ -141,17 +138,18 @@ def data_uv_and_face(mesh):
 	for ix in range(0, vertex_count):
 		uv_list.append([])
 	uv_temp = [None, None, None, None]
-	for ix in range(0, len(mesh.loop_triangles)):
-		loops = mesh.loop_triangles[ix].loops
-		# v = len(loops)
-		v = 3
-		uv_temp[0] = uv_flip_x(uv_data[loops[0]].uv)
-		uv_temp[1] = uv_flip_x(uv_data[loops[1]].uv)
-		uv_temp[2] = uv_flip_x(uv_data[loops[2]].uv)
+	for ix in range(0, len(uv_data)):
+		v = len(uv_data[ix].uv)
+		uv_temp[0] = uv_flip_x(uv_data[ix].uv1)
+		uv_temp[1] = uv_flip_x(uv_data[ix].uv2)
+		uv_temp[2] = uv_flip_x(uv_data[ix].uv3)
+		if v == 4:
+			uv_temp[3] = uv_flip_x(uv_data[ix].uv4)
 		for iv in range(0, v):
 			if uv_temp[iv] not in uv_list[tessface_list[ix][iv]]:
 				uv_list[tessface_list[ix][iv]].append(uv_temp[iv])
 				len_uv_this = len(uv_list[tessface_list[ix][iv]])
+				#
 				uv_last_one = -1
 				if len_uv_this > 1:
 					uv_list.append([uv_temp[iv]])
@@ -288,12 +286,12 @@ def txt_matrial(mesh):
 	normal_map = mesh.name+"_n.dds"
 	if (len(mesh.materials)) != 0:
 		mat = mesh.materials[0]
-		#ambient = mat.ambient
-		#diffuse = vec3_dummy*mat.diffuse_intensity
+		ambient = mat.ambient
+		diffuse = vec3_dummy*mat.diffuse_intensity
 		specular = vec3_dummy*mat.specular_intensity
 		# mat_hard method from export_fbx.py
-		#mat_hard = ((float(mat.specular_hardness) - 1.0) / 510.0) * 128.0
-		#reflect = mat.mirror_color*mat.raytrace_mirror.reflect_factor
+		mat_hard = ((float(mat.specular_hardness) - 1.0) / 510.0) * 128.0
+		reflect = mat.mirror_color*mat.raytrace_mirror.reflect_factor
 	# materials txt
 	rt_list.append("Ambient:"+(" "+str(ambient))*3)
 	rt_list.append("Diffuse: "+str(coordinate_to_str(diffuse)))
@@ -417,8 +415,6 @@ def export_m3d():
 	txt_m3d = package_m3d(package_mesh_static(objects_mesh))
 	file_name = bpy.path.basename(bpy.context.blend_data.filepath)
 	file_name = file_name.replace(".blend", "")
-	if (len(file_name) == 0):
-		file_name = "untitled"
 	export = getglobald("EXPORT_DIR")+file_name+".m3d"
 	write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start

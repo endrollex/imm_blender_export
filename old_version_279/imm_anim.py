@@ -34,7 +34,7 @@ def to_left_matrix(mat):
 	s_x = mathutils.Matrix.Identity(3)
 	s_x[0][0] = -1
 	mat_l = mat.to_3x3()
-	mat_l = s_x @ mat_l @ s_x
+	mat_l = s_x*mat_l*s_x
 	mat_l = mat_l.to_4x4()
 	mat_l[3][0:3] = -mat[3][0], mat[3][1], mat[3][2]
 	return mat_l
@@ -152,10 +152,10 @@ def data_hierarchy_rigify(arma):
 def data_offset_rigify(o_mesh, o_arma, arma):
 	global rig_arma_list
 	global rig_arma_find_old_ix
-	mesh_to_arma = o_mesh.matrix_basis @ o_arma.matrix_basis
+	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
 	for org_bone in rig_arma_list:
-		mat = (mesh_to_arma @ arma.bones[rig_arma_find_old_ix[org_bone]].matrix_local).transposed()
+		mat = (mesh_to_arma*arma.bones[rig_arma_find_old_ix[org_bone]].matrix_local).transposed()
 		mat = to_left_matrix(mat)
 		mat = mat.inverted()
 		rt_list.append(mat)
@@ -193,9 +193,7 @@ def data_anim_clip_rigify(scene, action, o_arma):
 	len_key = len(key_co_list)
 	for ix_key, key_co in enumerate(key_co_list):
 		scene.frame_set(key_co)
-		#scene.update
-		layer = bpy.context.view_layer
-		layer.update()
+		scene.update
 		for index, org_bone in enumerate(rig_arma_list):
 			ix = index
 			mat_to_p = get_to_parent(o_arma.pose.bones.get(org_bone)).transposed()
@@ -287,7 +285,7 @@ def get_index(item, bpy_data):
 def get_to_parent(pose_bone):
 	if pose_bone.parent == None:
 		return pose_bone.matrix
-	to_parent = pose_bone.parent.matrix.inverted() @ pose_bone.matrix
+	to_parent = pose_bone.parent.matrix.inverted()*pose_bone.matrix
 	return to_parent
 
 # data bone hierarchy
@@ -319,10 +317,10 @@ def data_offset(o_mesh, o_arma, arma):
 	if imm_static.getglobald("IS_RIGIFY"):
 		return data_offset_rigify(o_mesh, o_arma, arma)
 	#
-	mesh_to_arma = o_mesh.matrix_basis @ o_arma.matrix_basis
+	mesh_to_arma = o_mesh.matrix_basis*o_arma.matrix_basis
 	rt_list = []
 	for ix in range(0, len(arma.bones)):
-		mat = (mesh_to_arma @ arma.bones[ix].matrix_local).transposed()
+		mat = (mesh_to_arma*arma.bones[ix].matrix_local).transposed()
 		mat = to_left_matrix(mat)
 		mat = mat.inverted()
 		rt_list.append(mat)
@@ -361,9 +359,7 @@ def data_anim_clip(scene, action, o_arma):
 	len_key = len(key_co_list)
 	for ix_key, key_co in enumerate(key_co_list):
 		scene.frame_set(key_co)
-		#scene.update
-		layer = bpy.context.view_layer
-		layer.update()
+		scene.update
 		for ix, bone in enumerate(o_arma.data.bones):
 			mat_to_p = get_to_parent(o_arma.pose.bones.get(bone.name)).transposed()
 			mat_to_p = to_left_matrix(mat_to_p)
