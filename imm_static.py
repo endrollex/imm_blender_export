@@ -182,7 +182,8 @@ def data_uv_and_face(mesh):
 		if (len(t)) == 0:
 			print("--ATTENTION!--")
 			print("imm export error: uv wrong, maybe has single vertex")
-			assert(False)
+			set_global_dict("IS_ERROR", True)
+			assert(false)
 		uv_list.append(t[0])
 	return [uv_list, uv_ex_dict, tessface_list]
 
@@ -224,7 +225,7 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 		test = s1 * t2 - s2 * t1
 		if test == 0:
 			print("imm export error: div by zero, uv may be wrong")
-			#None
+			set_global_dict("IS_ERROR", True)
 		else:
 			r = 1.0 / test
 		sdir = mathutils.Vector(((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r))
@@ -279,7 +280,7 @@ def txt_matrial(mesh):
 	rt_list = []
 	# materials
 	ambient = 1.0
-	diffuse = mathutils.Vector((0.64, 0.64, 0.64))
+	diffuse = mathutils.Vector((1.0, 1.0, 1.0))
 	specular = mathutils.Vector((0.5, 0.5, 0.5))
 	mat_hard = 12.298
 	reflect = mathutils.Vector((0.0, 0.0, 0.0))
@@ -420,6 +421,9 @@ def export_m3d():
 	if (len(file_name) == 0):
 		file_name = "untitled"
 	export = getglobald("EXPORT_DIR")+file_name+".m3d"
+	if getglobald("IS_ERROR"):
+		print("export failed")
+		return
 	write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	#

@@ -222,7 +222,7 @@ def data_tangent(len_uv, position_list, normal_list, uv_list, triangle_list):
 		test = s1 * t2 - s2 * t1
 		if test == 0:
 			print("imm export error: div by zero, uv may be wrong")
-			#None
+			assert(False)
 		else:
 			r = 1.0 / test
 		sdir = mathutils.Vector(((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r))

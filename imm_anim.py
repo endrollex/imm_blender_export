@@ -612,6 +612,9 @@ def export_m3d_anim():
 	file_name = bpy.path.basename(bpy.context.blend_data.filepath)
 	file_name = file_name.replace(".blend", "")
 	export = imm_static.getglobald("EXPORT_DIR")+file_name+".m3d"
+	if imm_static.getglobald("IS_ERROR"):
+		print("export failed")
+		return
 	imm_static.write_text(export, txt_m3d)
 	time_spend = datetime.datetime.now()-time_start
 	# print
@@ -625,8 +628,13 @@ def export_m3d_anim():
 
 # run stript
 def run_script():
-	bpy.ops.object.mode_set(mode="OBJECT")
+	imm_static.set_global_dict("IS_ERROR", False)
+	if bpy.ops.object.mode_set.poll():
+		bpy.ops.object.mode_set(mode="OBJECT")
 	is_export_anim = imm_static.getglobald("IS_EXPORT_ANIM")
+	test = imm_static.find_first_object("ARMATURE")
+	if len(test) == 0:
+		is_export_anim = False
 	if (is_export_anim):
 		export_m3d_anim()
 	else:

@@ -1,7 +1,6 @@
 #
 # run_script_in_blender.py
 #
-
 import sys
 # WORKING_DIR: the path is the working directory.
 WORKING_DIR = ""
